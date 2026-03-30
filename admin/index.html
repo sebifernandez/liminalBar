@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Altxerri CMS</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+</head>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <img src="../img/altxerrilogo2.png" alt="Altxerri Logo" class="admin-logo">
+            
+            <h2>Altxerri CMS</h2>
+            <p>Gestión de Contenidos</p>
+            
+            <form class="login-form">
+                <div class="input-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" placeholder="Ingresa tu usuario">
+                </div>
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Ingresa tu contraseña">
+                </div>
+                
+                <button type="submit" class="btn-login">Ingresar</button>
+                <p id="login-error" class="login-error-message"></p>
+            </form>
+        </div>
+    </div>
+    
+    <script src="admin.js"></script>
+</body>
+</html>

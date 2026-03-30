@@ -1,0 +1,10 @@
+[build]
+  functions = "api/"
+
+[functions]
+  included_files = ["data/**"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server"
+  status = 200

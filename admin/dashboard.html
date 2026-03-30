@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Altxerri CMS</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="../img/altxerrilogo2.png" alt="Altxerri Logo" class="admin-logo-sidebar">
+                <span>Altxerri CMS</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" data-target="dashboard-home">
+                    <i class='bx bxs-dashboard'></i> <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-target="gestion-eventos">
+                    <i class='bx bxs-calendar-event'></i> <span>Eventos</span>
+                </a>
+                <a href="#" class="nav-link" data-target="gestion-carta">
+                    <i class='bx bxs-drink'></i> <span>Carta</span>
+                </a>
+                <a href="#" class="nav-link" data-target="gestion-web">
+                    <i class='bx bxs-photo-album'></i> <span>Web / Galería</span>
+                </a>
+                <a href="#" class="nav-link" data-target="gestion-newsletter">
+                    <i class='bx bxs-envelope'></i> <span>Newsletter</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="index.html" id="logout-btn" class="nav-link-logout">
+                    <i class='bx bx-log-out'></i> <span>Salir</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <button id="mobile-menu-btn" class="mobile-menu-btn"><i class='bx bx-menu'></i></button>
+                <h1>Bienvenido</h1>
+            </header>
+            
+            <section id="dashboard-home" class="content-section active">
+                <h2>Dashboard</h2>
+                <p>Selecciona una opción del menú para comenzar a gestionar el contenido.</p>
+                <div class="dashboard-cards">
+                    <div class="dash-card" data-target="gestion-eventos">
+                        <i class='bx bxs-calendar-event'></i>
+                        <h3>Gestionar Eventos</h3>
+                        <p>Crear, modificar o eliminar eventos del carrusel.</p>
+                    </div>
+                    <div class="dash-card" data-target="gestion-carta">
+                        <i class='bx bxs-drink'></i>
+                        <h3>Gestionar Carta</h3>
+                        <p>Editar categorías, productos y precios del menú.</p>
+                    </div>
+                    <div class="dash-card" data-target="gestion-web">
+                        <i class='bx bxs-photo-album'></i>
+                        <h3>Galería y Web</h3>
+                        <p>Administrar fotos del carrusel y textos.</p>
+                    </div>
+                    <div class="dash-card" data-target="gestion-newsletter">
+                        <i class='bx bxs-envelope'></i>
+                        <h3>Newsletter</h3>
+                        <p>Crear y enviar campañas de correo.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="gestion-eventos" class="content-section">
+                <h2>Gestión de Eventos</h2>
+                <div class="tabs">
+                    <button class="tab-link active" data-tab="alta-evento">Alta</button>
+                    <button class="tab-link" data-tab="mod-evento">Modificación</button>
+                    <button class="tab-link" data-tab="baja-evento">Baja</button>
+                </div>
+                
+                <div id="alta-evento" class="tab-content active">
+                    <h3>Crear Nuevo Evento</h3>
+                    
+                    <form id="form-alta-evento" class="form-alta-evento">
+                        
+                        <div class="form-grid">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="evento-fecha">Fecha del Evento *</label>
+                                    <input type="text" id="evento-fecha" class="form-input" placeholder="Clic para fecha..." readonly>
+                                    <div class="form-group" style="display:flex; gap:15px; margin-top: 1rem;">
+                                        <div style="flex:1;">
+                                            <label>Hora Inicio</label>
+                                            <input type="time" id="evento-hora-inicio" class="form-input" value="20:00">
+                                        </div>
+                                        <div style="flex:1;">
+                                            <label>Hora Fin (Aprox)</label>
+                                            <input type="time" id="evento-hora-fin" class="form-input" value="22:00">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="evento-tipo">Tipo de Evento *</label>
+                                    <select id="evento-tipo" class="form-input">
+                                        <option value="Regular">Evento Regular</option>
+                                        <option value="Privado">Evento Privado</option>
+                                        <option value="Cerrado">Bar Cerrado</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="evento-titulo">Título (ES) *</label>
+                                    <input type="text" id="evento-titulo" class="form-input" placeholder="Ej: Noche de Jazz">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="evento-descripcion">Descripción/Precio (ES)</label>
+                                    <textarea id="evento-descripcion" class="form-input" placeholder="Ej: Entrada 10€" style="min-height: 80px;"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="evento-live">Link "Ver en Vivo" (YouTube)</label>
+                                    <input type="text" id="evento-live" class="form-input" placeholder="Ej: https://youtube.com/live/...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="evento-concierto">Link "Reviví el Concierto" (Archivo)</label>
+                                    <input type="text" id="evento-concierto" class="form-input" placeholder="Ej: https://youtube.com/watch/...">
+                                </div>
+
+                                <hr style="border: 0; border-top: 1px solid var(--color-bg-light); margin: 1.5rem 0;">
+
+                                <div class="form-group-checkbox">
+                                    <input type="checkbox" id="evento-mismo-contenido" checked>
+                                    <label for="evento-mismo-contenido" style="font-size: 0.9rem; color: #aaa;">
+                                        Copiar Título y Descripción al Inglés
+                                    </label>
+                                </div>
+
+                                <div class="form-group en-field">
+                                    <label for="evento-titulo-en">Título (EN)</label>
+                                    <input type="text" id="evento-titulo-en" class="form-input" placeholder="Ej: Jazz Night" disabled>
+                                </div>
+
+                                <div class="form-group en-field">
+                                    <label for="evento-descripcion-en">Descripción/Price (EN)</label>
+                                    <textarea id="evento-descripcion-en" class="form-input" placeholder="Ej: Entry 10€" style="min-height: 80px;" disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Gestión de Imagen</h4>
+                            
+                            <div class="form-group-checkbox">
+                                <input type="checkbox" id="evento-img-generica">
+                                <label for="evento-img-generica">Usar imagen genérica (imgBandaGenerica.jpg)</label>
+                            </div>
+                            
+                            <fieldset id="fieldset-imagen" class="form-grid">
+                                
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="evento-imagen-upload">Subir Nueva Imagen</label>
+                                        <input type="file" id="evento-imagen-upload" class="form-input-file" accept="image/jpeg, image/png, image/webp">
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" id="btn-elegir-img" class="btn btn-secondary">
+                                            <i class='bx bx-images'></i> Elegir Imagen Preexistente
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="evento-imagen-url-seleccionada"> 
+                                
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="evento-tags">Referencias de Imagen (Tags) *</label>
+                                        <div class="tag-container" id="tag-container">
+                                            <input type="text" id="evento-tags" placeholder="Escribe y presiona Enter (Ej: Pedro Asnar)...">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="btn-preview-evento"><i class='bx bx-show'></i> Vista Previa</button>
+                            <button type="submit" class="btn btn-primary"><i class='bx bxs-save'></i> Guardar Evento</button>
+                        </div>
+
+                    </form>
+                </div>
+                
+                <div id="mod-evento" class="tab-content">
+                    <h3>Modificar un Evento</h3>
+                    
+                    <form class="form-busqueda" id="form-busqueda-mod">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="mod-search-fecha">Buscar por Fecha</label>
+                                <input type="text" id="mod-search-fecha" class="form-input search-input-fecha" placeholder="Clic para elegir fecha...">
+                            </div>
+                            <div class="form-group">
+                                <label for="mod-search-tipo">Buscar por Tipo</label>
+                                <select id="mod-search-tipo" class="form-input">
+                                    <option value="">Todos</option>
+                                    <option value="Regular">Evento Regular</option>
+                                    <option value="Privado">Evento Privado</option>
+                                    <option value="Cerrado">Bar Cerrado</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mod-search-titulo">Buscar por Título</label>
+                                <input type="text" id="mod-search-titulo" class="form-input" placeholder="Ej: Pedro Asnar...">
+                            </div>
+                            <div class="form-group">
+                                <label for="mod-search-tags">Buscar por Tag (Ref. Imagen)</label>
+                                <input type="text" id="mod-search-tags" class="form-input" placeholder="Ej: Pedrito...">
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="resultados-container" id="mod-resultados-container">
+                        </div>
+                </div>
+                
+                <div id="baja-evento" class="tab-content">
+                    <h3>Eliminar un Evento</h3>
+                    
+                    <form class="form-busqueda" id="form-busqueda-baja">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="baja-search-fecha">Buscar por Fecha</label>
+                                <input type="text" id="baja-search-fecha" class="form-input search-input-fecha" placeholder="Clic para elegir fecha...">
+                            </div>
+                            <div class="form-group">
+                                <label for="baja-search-tipo">Buscar por Tipo</label>
+                                <select id="baja-search-tipo" class="form-input">
+                                    <option value="">Todos</option>
+                                    <option value="Regular">Evento Regular</option>
+                                    <option value="Privado">Evento Privado</option>
+                                    <option value="Cerrado">Bar Cerrado</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="baja-search-titulo">Buscar por Título</label>
+                                <input type="text" id="baja-search-titulo" class="form-input" placeholder="Ej: Pedro Asnar...">
+                            </div>
+                            <div class="form-group">
+                                <label for="baja-search-tags">Buscar por Tag (Ref. Imagen)</label>
+                                <input type="text" id="baja-search-tags" class="form-input" placeholder="Ej: Pedrito...">
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="resultados-container" id="baja-resultados-container">
+                        </div>
+                </div>
+            </section>
+
+            <section id="gestion-carta" class="content-section">
+                <h2>Gestión de Carta</h2>
+                <div class="tabs">
+                    <button class="tab-link active" data-tab="alta-producto">Alta de Producto</button>
+                    <button class="tab-link" data-tab="mod-producto">Modificación y Visibilidad</button>
+                </div>
+                
+                <div id="alta-producto" class="tab-content active">
+                    <h3 id="alta-producto-titulo">Crear Nuevo Producto</h3>
+
+                    <form id="form-alta-producto" class="form-alta-evento" novalidate>
+
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label for="producto-tipo">1. ¿Qué tipo de producto quieres crear? *</label>
+                                <select id="producto-tipo" class="form-input">
+                                    <option value="">Selecciona un tipo...</option>
+                                    <option value="coctel">Coctel</option>
+                                    <option value="cervezaBarril">Cerveza de Barril</option>
+                                    <option value="cervezaEnvasada">Cerveza Envasada</option>
+                                    <option value="vinoTinto">Vino Tinto</option>
+                                    <option value="vinoBlanco">Vino Blanco</option>
+                                    <option value="vinoOtro">Vino (Otro: Rosado, Espumante, etc.)</option>
+                                    <option value="destilado">Destilado</option>
+                                    <option value="sinAlcohol">Sin Alcohol</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="smart-form-container" class="smart-form-container">
+                            </div>
+
+                        <div id="form-actions-producto" class="form-actions" style="display: none;">
+                            <button type="button" class="btn btn-secondary" id="btn-preview-producto"><i class='bx bx-show'></i> Vista Previa</button>
+                            <button type="submit" class="btn btn-primary"><i class='bx bxs-save'></i> Guardar Producto</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="mod-producto" class="tab-content">
+                    <h3>Modificar Visibilidad o Producto</h3>
+                    
+                    <form class="form-busqueda" id="form-busqueda-producto">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="prod-search-titulo">Buscar por Título</label>
+                                <input type="text" id="prod-search-titulo" class="form-input" placeholder="Ej: Catena Zapata...">
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-search-tipo">Filtrar por Tipo</label>
+                                <select id="prod-search-tipo" class="form-input">
+                                    <option value="">Todos los Tipos</option>
+                                    <option value="coctel">Coctel</option>
+                                    <option value="cervezaBarril">Cerveza de Barril</option>
+                                    <option value="cervezaEnvasada">Cerveza Envasada</option>
+                                    <option value="vinoTinto">Vino Tinto</option>
+                                    <option value="vinoBlanco">Vino Blanco</option>
+                                    <option value="vinoOtro">Vino (Otro)</option>
+                                    <option value="destilado">Destilado</option>
+                                    <option value="sinAlcohol">Sin Alcohol</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="resultados-container" id="prod-resultados-container">
+                    </div>
+                </div>
+                
+            </section>
+
+            <section id="gestion-web" class="content-section">
+                <h2>Gestión de Contenido Web</h2>
+                
+                <div class="tabs">
+                    <button class="tab-link active" data-tab="admin-galeria">Galería de Imágenes</button>
+                    <button class="tab-link" data-tab="admin-textos">Textos y Contenidos</button> </div>
+
+                <div id="admin-galeria" class="tab-content active">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3>Fotos del Carrusel (Home)</h3>
+                        <button class="btn btn-primary" id="btn-nueva-foto-galeria">
+                            <i class='bx bxs-cloud-upload'></i> Subir Nueva Foto
+                        </button>
+                        <input type="file" id="input-foto-galeria" accept="image/*" style="display: none;">
+                    </div>
+
+                    <div id="galeria-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem;">
+                        <p>Cargando imágenes...</p>
+                    </div>
+                </div>
+
+                <div id="admin-textos" class="tab-content">
+                        
+                        <div class="form-header-actions" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; background:var(--color-bg-light); padding:1rem; border-radius:10px;">
+                            <div class="form-group" style="margin-bottom:0; flex-grow:1; margin-right:1rem;">
+                                <label for="texto-idioma-select" style="display:inline-block; margin-right:10px;">Editando Idioma:</label>
+                                <select id="texto-idioma-select" class="form-input" style="width:auto; display:inline-block;">
+                                    <option value="home_es">Español (ES)</option>
+                                    <option value="home_en">Inglés (EN)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-ver-historial">
+                                <i class='bx bx-time-five'></i> Ver Historial / Backups
+                            </button>
+                        </div>
+
+                        <form id="form-textos-web">
+                            <div class="form-section" style="margin-top:0;">
+                                <h4 style="cursor:pointer;" onclick="toggleSection(this)">Hero (Inicio) <i class='bx bx-chevron-down'></i></h4>
+                                <div class="section-content"> <div class="form-group">
+                                        <label>Título Principal</label>
+                                        <input type="text" id="txt-hero-titulo" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Subtítulo (Admite &lt;br&gt;)</label>
+                                        <textarea id="txt-hero-subtitulo" class="form-input"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 style="cursor:pointer;" onclick="toggleSection(this)">Historia <i class='bx bx-chevron-down'></i></h4>
+                                <div class="section-content">
+                                    <div class="form-group">
+                                        <label>Título</label>
+                                        <input type="text" id="txt-historia-titulo" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Texto de Historia (Párrafo largo)</label>
+                                        <textarea id="txt-historia-texto" class="form-input" style="min-height:150px;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 style="cursor:pointer;" onclick="toggleSection(this)">Banner Parallax & Newsletter <i class='bx bx-chevron-down'></i></h4>
+                                <div class="section-content">
+                                    <div class="form-group">
+                                        <label>Texto del Banner Parallax</label>
+                                        <input type="text" id="txt-parallax-titulo" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Título Modal Newsletter</label>
+                                        <input type="text" id="txt-news-titulo" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Subtítulo Modal Newsletter</label>
+                                        <textarea id="txt-news-subtitulo" class="form-input"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 style="cursor:pointer;" onclick="toggleSection(this)">Ubicación <i class='bx bx-chevron-down'></i></h4>
+                                <div class="section-content">
+                                    <div class="form-group">
+                                        <label>Título Sección</label>
+                                        <input type="text" id="txt-ubicacion-titulo" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Dirección (Línea 1 - Negrita)</label>
+                                        <input type="text" id="txt-ubicacion-subtitulo" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ciudad / CP (Línea 2)</label>
+                                        <input type="text" id="txt-ubicacion-texto" class="form-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class='bx bxs-save'></i> Guardar Cambios de Texto
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+            </section>
+
+            <section id="gestion-newsletter" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Creador de Newsletter</h2>
+                    
+                    <div class="switch-mode-container" style="background: var(--color-bg-dark); padding: 5px; border-radius: 20px; border: 1px solid #444;">
+                        <button type="button" id="btn-mode-calendar" class="btn-mode active" style="border:none; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold;">Por Fechas</button>
+                        <button type="button" id="btn-mode-custom" class="btn-mode" style="border:none; padding: 5px 15px; border-radius: 15px; cursor: pointer; color: #aaa; background: transparent;">Personalizado</button>
+                    </div>
+                </div>
+
+                <div class="newsletter-workspace">
+                    
+                    <div class="news-col-config">
+                        <div class="form-alta-evento">
+                            <h4 style="color: var(--color-primario-rojo); margin-bottom: 1rem;">1. Configuración del Correo</h4>
+                            
+                            <div class="form-group">
+                                <label>Asunto del Correo (Subject) *</label>
+                                <input type="text" id="news-subject" class="form-input" placeholder="Ej: Agenda Semanal - ¡No te lo pierdas!">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Título Principal (Encabezado) *</label>
+                                <input type="text" id="news-title" class="form-input" value="Agenda Semanal">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Subtítulo (Opcional)</label>
+                                <input type="text" id="news-subtitle" class="form-input" placeholder="Ej: Del 10 al 17 de Febrero">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Texto Introductorio (Opcional)</label>
+                                <textarea id="news-intro" class="form-input" style="min-height: 60px;">Te compartimos los próximos conciertos para que vayas reservando tu mesa.</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Texto Final / Footer (Opcional)</label>
+                                <textarea id="news-footer-text" class="form-input" style="min-height: 60px;" placeholder="Esperamos verte pronto..."></textarea>
+                            </div>
+
+                            <div id="custom-newsletter-fields" style="display: none; border-top: 1px solid #444; margin-top: 1rem; padding-top: 1rem;">
+                                <h4 style="color: #FFC107;">Imagen Principal (Flyer)</h4>
+                                <div class="form-group">
+                                    <label>Subir Flyer Completo *</label>
+                                    <input type="file" id="news-custom-img" class="form-input-file" accept="image/*">
+                                </div>
+                                
+                                <div class="toggle-wrapper">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="news-custom-header" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <label for="news-custom-header" style="cursor: pointer; color: #fff;">Incluir Logo y Cabecera del Bar</label>
+                                </div>
+                                
+                                <hr style="border: 0; border-top: 1px solid #444; margin: 1rem 0;">
+                                
+                                <div class="toggle-wrapper">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="news-custom-link-event">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <label for="news-custom-link-event" style="color: #FFC107; font-weight: bold; cursor: pointer;">Vincular flyer a un evento</label>
+                                </div>
+
+                                <div id="selected-event-display" style="margin-top: 15px; padding: 10px; background: #111; border-left: 4px solid #C8AA6E; border-radius: 4px; display: none;">
+                                    <span style="color: #C8AA6E; font-size: 0.8rem; text-transform: uppercase;">Flyer Vinculado a:</span><br>
+                                    <strong id="selected-event-title" style="color: #fff; font-size: 1.1rem;">-</strong><br>
+                                    <small id="selected-event-date" style="color: #aaa;">-</small>
+                                </div>
+                                <input type="hidden" id="news-custom-date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="news-col-calendar" id="container-calendar-mode">
+                        <div class="form-alta-evento">
+                            <div class="news-cal-top-bar">
+                                <h4>2. Selecciona los Eventos</h4>
+                                <div class="cal-nav-buttons">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="news-cal-prev"><i class='bx bx-chevron-left'></i></button>
+                                    <span id="news-cal-month">MES AÑO</span>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="news-cal-next"><i class='bx bx-chevron-right'></i></button>
+                                </div>
+                            </div>
+                            
+                            <div class="newsletter-calendar-grid" id="news-calendar-grid">
+                                </div>
+                            
+                            <div class="news-selection-info">
+                                <span id="news-selection-counter" style="color:#FFC107; font-weight:bold;">0 eventos seleccionados</span>
+                                <small style="color:#aaa; display:block; margin-top:5px;">
+                                    <i class='bx bxs-star'></i> Destacar | <i class='bx bxs-pencil'></i> Editar para Mail
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="news-col-calendar" id="custom-link-visual-container" style="display: none;">
+                        <div class="form-alta-evento">
+                            <div class="news-cal-top-bar">
+                                <h4>Seleccioná el Evento</h4>
+                                <div class="cal-nav-buttons">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="sel-cal-prev"><i class='bx bx-chevron-left'></i></button>
+                                    <span id="sel-cal-month" style="font-weight: bold; color: #fff;">MES AÑO</span>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="sel-cal-next"><i class='bx bx-chevron-right'></i></button>
+                                </div>
+                            </div>
+                            
+                            <p style="color: #ccc; font-size: 0.9rem; margin-top: 0; margin-bottom: 15px;">
+                                Al hacer clic en el flyer del correo, el usuario irá directo al detalle de este show.
+                            </p>
+
+                            <div class="newsletter-calendar-grid" id="selector-calendar-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="news-col-actions">
+                        <div class="form-alta-evento" style="text-align: center;">
+                            <h4>3. Acciones</h4>
+                            <button class="btn btn-secondary" id="btn-preview-newsletter" style="width:100%; margin-bottom:1rem;">
+                                <i class='bx bx-show'></i> Vista Previa
+                            </button>
+                            <button class="btn btn-primary" id="btn-send-newsletter" style="width:100%;">
+                                <i class='bx bxs-paper-plane'></i> Enviar Ahora
+                            </button>
+                            <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">
+                                Se enviará a la base de datos de suscriptores.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <div id="modal-edit-newsletter" class="modal-buscador-imagenes">
+                <div class="modal-contenido" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h3>Editar para Newsletter</h3>
+                        <span class="cerrar-modal" id="close-edit-news">&times;</span>
+                    </div>
+                    <div style="padding: 1rem 0;">
+                        <p style="font-size: 0.9rem; color: #FFC107; margin-bottom: 1rem;">
+                            <i class='bx bxs-info-circle'></i> Estos cambios solo se aplicarán a este envío de correo. No afectan a la web.
+                        </p>
+                        
+                        <input type="hidden" id="edit-news-id"> <input type="hidden" id="edit-news-date"> <div class="form-group">
+                            <label>Título para el Mail</label>
+                            <input type="text" id="edit-news-title" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descripción / Precio</label>
+                            <textarea id="edit-news-desc" class="form-input" style="min-height: 80px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Imagen Personalizada (Opcional)</label>
+                            <input type="file" id="edit-news-img" class="form-input-file" accept="image/*">
+                            <div id="edit-news-img-preview" style="margin-top: 10px; max-width: 100px; display: none;">
+                                <img src="" style="width: 100%; border-radius: 5px;">
+                                <button type="button" id="btn-remove-custom-img" style="font-size: 0.8rem; background: #333; border: none; color: #fff; cursor: pointer;">Quitar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions" style="margin-top: 1rem;">
+                            <button type="button" class="btn btn-primary" id="btn-save-edit-news">Confirmar Edición Temporal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <div id="modal-imagenes" class="modal-buscador-imagenes">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h3>Buscador de Imágenes Guardadas</h3>
+                <span class="cerrar-modal" id="cerrar-modal-imagenes">&times;</span>
+            </div>
+            
+            <form id="form-buscador-imagenes" class="form-busqueda" style="margin-top: 1rem;">
+                <div class="form-group">
+                    <label for="search-tags-modal">Buscar por Tags (Ej: Pedro, Saxofón)</label>
+                    <input type="text" id="search-tags-modal" class="form-input" placeholder="Escribe tags para buscar...">
+                </div>
+            </form>
+            
+            <div class="resultados-container" id="resultados-imagenes">
+                <p style="text-align: center; color: #9E9E9E; margin-top: 2rem;">Escribe en el campo de búsqueda para empezar.</p>
+            </div>
+            
+            <div id="loading-spinner-img" style="text-align: center; color: #E0E0E0; margin-top: 2rem; display: none;">
+                <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i> Cargando...
+            </div>
+
+        </div>
+    </div>
+
+    <div id="modal-backups" class="modal-buscador-imagenes">
+        <div class="modal-contenido" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Historial de Cambios</h3>
+                <span class="cerrar-modal" id="cerrar-modal-backups">&times;</span>
+            </div>
+            <div id="lista-backups" style="max-height: 400px; overflow-y: auto; margin-top:1rem;">
+                <p style="text-align:center; color:#999;">Cargando historial...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-preview" class="modal-buscador-imagenes">
+        <div class="modal-contenido" style="background: #000; max-width: 600px; border: 1px solid #333;">
+            <div class="modal-header" style="border-bottom: 1px solid #333;">
+                <h3 style="color: #fff;">Vista Previa</h3>
+                <span class="cerrar-modal" id="cerrar-modal-preview">&times;</span>
+            </div>
+            <div id="preview-container" style="padding: 2rem 0; color: #fff;">
+                </div>
+        </div>
+    </div>
+
+    <div id="modal-multi-eventos-news" class="modal-buscador-imagenes">
+        <div class="modal-contenido" style="max-width: 500px; background: #1a1a1a; border: 1px solid #333;">
+            <div class="modal-header" style="border-bottom: 1px solid #333;">
+                <h3 style="color: #FFC107;">Eventos del <span id="multi-event-date-title">Día</span></h3>
+                <span class="cerrar-modal" id="close-multi-eventos-news">&times;</span>
+            </div>
+            
+            <div style="padding: 1rem 0;">
+                <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem;">
+                    Este día tiene varios shows. Seleccioná cuáles querés incluir en el correo, editalos o marcá el evento principal (destacado).
+                </p>
+                
+                <div id="multi-eventos-lista" style="display: flex; flex-direction: column; gap: 10px;">
+                    </div>
+            </div>
+            
+            <div class="form-actions" style="margin-top: 1rem; border-top: 1px solid #333; padding-top: 1rem;">
+                <button type="button" class="btn btn-primary" id="btn-save-multi-news" style="width: 100%;">Confirmar Selección</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="admin.js"></script>
+</body>
+</html>

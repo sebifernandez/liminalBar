@@ -1,0 +1,1059 @@
+/* --- FASE 1: VARIABLES GLOBALES Y ATMÓSFERA --- */
+
+/* :root es donde definimos nuestras variables de diseño.
+  Si quieres ajustar un color, lo cambias aquí y se actualiza en toda la web.
+*/
+:root {
+    /* Paleta de colores "Jazz Cavern" (Negros y Rojos) */
+    --color-fondo: #121212; /* Un negro profundo, no un #000 puro */
+    --color-primario-rojo: #B71C1C; /* Un rojo oscuro y elegante */
+    --color-texto-principal: #E0E0E0; /* Un "blanco" suave, no cansa la vista */
+    --color-texto-secundario: #9E9E9E; /* Grises para descripciones */
+    --color-fondo-navbar: rgba(18, 18, 18, 0.85); /* Fondo del navbar semi-transparente */
+    
+    /* Tipografías (usamos fuentes seguras del sistema) */
+    --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+    --fuente-texto: 'Helvetica', 'Arial', sans-serif;
+    
+    /* LA REGLA 'ULTRAWIDE': 
+      Definimos el ancho máximo que tendrá el contenido.
+    */
+    --ancho-maximo-contenido: 1400px; 
+    
+    /* Tiempos de transición (para el scroll suave) */
+    --tiempo-scroll: 0.5s; /* 0.5 segundos, como pediste */
+    --timing-scroll: ease-in-out;
+}
+
+/* --- RESET BÁSICO Y ESTILOS GLOBALES --- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Fundamental para que los % y padding no rompan el layout */
+}
+
+
+body {
+    font-family: var(--fuente-texto);
+    background-color: var(--color-fondo);
+    color: var(--color-texto-principal);
+    line-height: 1.6; /* Interlineado cómodo para leer */
+}
+
+/* ===== ESTILOS DEL PRELOADER ===== */
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000; /* Fondo negro sólido */
+  z-index: 9999; /* Por encima de todo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Transición para el fade-out */
+  opacity: 1;
+  transition: opacity 0.75s ease;
+}
+
+.preloader-logo {
+  width: 100px; /* Ajusta el tamaño del logo */
+  animation: spin 2s linear infinite;
+}
+
+/* Clase que usará JS para ocultarlo */
+#preloader.preloader-hidden {
+  opacity: 0;
+  pointer-events: none; /* Impide clics */
+}
+
+/* Animación de giro ("dando vueltas") */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ================================== */
+
+/* Estilo base para imágenes, para que nunca
+  se desborden de su contenedor.
+*/
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- REGLA DEL CONTENEDOR 'ULTRAWIDE' --- */
+
+/* Esta es la magia. Aplicamos el ancho máximo a nuestro 
+  contenedor principal. El navbar tendrá su propia lógica 
+  para centrar el contenido.
+*/
+#main-container {
+    width: 100%;
+    max-width: var(--ancho-maximo-contenido);
+    
+    /* Esto lo centra horizontalmente en la pantalla */
+    margin-left: auto;
+    margin-right: auto;
+    
+    /* Añadimos padding a los lados para que en MÓVIL
+      el contenido no se pegue a los bordes de la pantalla.
+    */
+    padding-left: 1.5rem;  /* 24px */
+    padding-right: 1.5rem; /* 24px */
+}
+
+/* --- FASE 2: ESTILOS DEL NAVBAR Y MENÚ MÓVIL --- */
+
+.navbar-container {
+    position: sticky; /* Fija el navbar en la parte superior */
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Se asegura de que esté por encima de todo */
+
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+    
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-content {
+    /* Este es el contenedor centrado */
+    display: flex;
+    justify-content: space-between; /* Logo a la izq, nav a la der */
+    align-items: center;
+    
+    width: 100%;
+    max-width: var(--ancho-maximo-contenido); /* Usa la variable de la Fase 1 */
+    margin-left: auto;
+    margin-right: auto;
+    
+    /* Padding: 12px arriba/abajo, 24px (1.5rem) a los lados */
+    padding: 0.75rem 1.5rem; 
+    height: 70px; /* Altura fija para el navbar */
+}
+
+/* 1. Logo */
+.nav-logo img {
+    height: 70px; /* Ajusta esto a la altura deseada de tu logo */
+    width: auto;
+    /* 'object-fit' asegura que el logo no se deforme */
+    object-fit: contain; 
+}
+
+/* 2. Navegación Desktop */
+.nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 2rem; /* Espacio entre cada enlace */
+}
+
+.nav-link-desktop {
+    font-family: var(--fuente-titulos);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    text-decoration: none;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+/* Efecto "hover" con subrayado rojo */
+.nav-link-desktop::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primario-rojo);
+    transform: scaleX(0); /* Oculto por defecto */
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.nav-link-desktop:hover {
+    color: #ffffff;
+}
+
+.nav-link-desktop:hover::after {
+    transform: scaleX(1); /* Muestra el subrayado al pasar el ratón */
+}
+
+/* Botón de Idioma (común para desktop y mobile) */
+.lang-btn {
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #121212;
+    background-color: #cdc29e;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.lang-btn:hover {
+    background-color: #d0ba71; /* Un rojo un poco más brillante */
+}
+
+/* 3. Botón Hamburguesa (oculto en desktop) */
+.nav-hamburger-btn {
+    display: none; /* Oculto por defecto */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 28px;
+    height: 22px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1002; /* Encima del menú móvil */
+}
+
+.hamburger-bar {
+    width: 100%;
+    height: 3px;
+    background-color: var(--color-texto-principal);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Animación del botón hamburguesa a "X" */
+.nav-hamburger-btn.open .hamburger-bar:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+.nav-hamburger-btn.open .hamburger-bar:nth-child(2) {
+    opacity: 0;
+}
+.nav-hamburger-btn.open .hamburger-bar:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* 4. Menú Móvil Desplegable (oculto en desktop) */
+.nav-mobile-menu {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Ocupa toda la pantalla */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* 100% de la altura del viewport (pantalla) */
+    overflow-y: auto;   
+    padding-top: 100px; /* Espacio para el navbar que queda arriba */
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    /* Animación de entrada/salida */
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    z-index: 1001; /* Justo debajo del navbar */
+}
+
+.nav-mobile-menu.open {
+    display: flex; /* Se muestra al hacer clic */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.nav-link-mobile {
+    font-family: var(--fuente-titulos);
+    font-size: 1.8rem; /* Letra grande para fácil clic */
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-link-mobile:hover {
+    color: var(--color-primario-rojo);
+}
+
+.lang-btn-mobile {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    transform: scale(1.1); /* Un poco más grande en móvil */
+}
+
+
+/* --- RESPONSIVE BREAKPOINT (Media Query) --- */
+/* Aquí ocurre la magia del cambio Desktop -> Mobile */
+
+/* Usamos 900px como punto de quiebre (Tablet) */
+@media (max-width: 900px) {
+    .nav-desktop {
+        display: none; /* Oculta la navegación de desktop */
+    }
+    
+    .nav-hamburger-btn {
+        display: flex; /* Muestra el botón hamburguesa */
+    }
+}
+
+/* --- FASE 3: ESTILOS DE SECCIONES Y CONTENIDO --- */
+
+/* --- Estilos de Sección General --- */
+
+.seccion {
+    /* Damos un 'padding-top' igual a la altura del navbar 
+       para que el ancla (ej. #cocteles) no quede oculta 
+       detrás del navbar fijo.
+    */
+    padding-top: 70px; 
+    margin-top: -70px; /* Truco para compensar el padding */
+    
+    /* Damos espacio inferior grande entre secciones */
+    padding-bottom: 6rem; 
+}
+
+.seccion-con-fondo {
+    /* Efecto Parallax (Fondo Fijo) */
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    
+    /* Superponemos un color oscuro para que el texto resalte */
+    position: relative;
+    /* 'isolation' crea un nuevo contexto de apilamiento
+       para que el pseudo-elemento ::before no se mezcle
+       con otros fondos.
+    */
+    isolation: isolate; 
+}
+
+/* Capa de superposición oscura */
+.seccion-con-fondo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* Un degradado oscuro que ayuda a la legibilidad del texto */
+    background: linear-gradient(rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.95));
+    
+    z-index: -1; /* Se sitúa detrás del contenido */
+}
+
+/* Título principal de cada sección (ej. "Cocteles") */
+.seccion-titulo {
+    font-family: var(--fuente-titulos);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 2rem 0;
+    border-bottom: 2px solid #cdc29e;
+    margin-bottom: 3rem;
+}
+
+/* Subtítulo (ej. "Cervezas de Barril") */
+.seccion-subtitulo {
+    font-family: var(--fuente-titulos);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    border-left: 5px solid #cdc29e;
+    padding-left: 1rem;
+}
+
+/* --- Estilos de Cocteles (Cards) --- */
+
+.cocteles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.card-coctel {
+    display: flex;
+    align-items: center; /* ¡Centrado vertical, como pediste! */
+    gap: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-coctel-imagen {
+    flex-basis: 30%; /* 30% de ancho */
+    flex-shrink: 0; /* No se encoge */
+    overflow: hidden;
+    min-height: 180px; 
+    max-height: 220px;
+    display: flex;
+}
+
+.card-coctel-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Evita que la imagen se deforme */
+}
+
+.card-coctel-textos {
+    flex-basis: 55%; /* 55% de ancho */
+}
+
+.card-coctel-titulo {
+    font-family: var(--fuente-titulos);
+    font-size: 1.4rem;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.card-coctel-descripcion {
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+}
+
+.card-coctel-precio {
+    flex-basis: 15%; /* 15% de ancho */
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    padding-right: 1rem;
+}
+
+/* Layout: Imagen a la Izquierda (degradé a la derecha) */
+.card-coctel.layout-img-texto .card-coctel-imagen img {
+    mask-image: linear-gradient(to right, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%); /* Para Safari */
+}
+
+/* Layout: Imagen a la Derecha (degradé a la izquierda) */
+.card-coctel.layout-texto-img .card-coctel-imagen img {
+    mask-image: linear-gradient(to left, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to left, black 60%, transparent 100%); /* Para Safari */
+}
+
+.card-coctel.layout-texto-img .card-coctel-imagen { order: 3; }
+.card-coctel.layout-texto-img .card-coctel-textos { order: 1; }
+.card-coctel.layout-texto-img .card-coctel-precio { order: 2; }
+
+/* Ajuste para dar padding al texto en las cards invertidas */
+.card-coctel.layout-texto-img .card-coctel-textos {
+    padding-left: 1.5rem; /* 24px - ¡Ajusta este valor si lo necesitas! */
+}
+
+/* --- Estilos de Listado (Cervezas, Vinos, etc.) --- */
+
+.listado-subseccion {
+    margin-bottom: 3rem;
+}
+
+.listado-item, .listado-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    /* 10% margen izq + 65% textos + 15% precios + 10% margen der */
+    padding: 0 10%; /* Aplicamos los márgenes laterales del 10% */
+}
+
+.listado-header {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-texto-secundario);
+    padding-bottom: 0.5rem;
+}
+
+.listado-item {
+    padding: 1.5rem 10%;
+    border-bottom: 3px double var(--color-texto-secundario);
+    /* Transición suave por si añadimos 'hover' en el futuro */
+    transition: background-color 0.3s ease;
+}
+
+.listado-item:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.listado-item-textos {
+    flex-basis: 75%; /* 65% / (65% + 15%) = 81%. Ajustamos. */
+    padding-right: 1rem;
+}
+
+.listado-item-precios {
+    display: flex;
+    justify-content: center; /* ¡Centra el contenido! */
+    align-items: center;
+    width: 100%;
+    padding-left: 0; /* Anula el padding de desktop */
+
+    /* La línea punteada que separa del texto */
+    padding-top: 1rem;
+}
+
+/*arrancamos cambios*/
+
+.listado-header .listado-item-precios {
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    text-transform: uppercase;
+}
+
+/* Plantillas de Precios */
+.precios-dos {
+    display: flex;
+    justify-content: center;
+    width: 100%; /* Ocupa el ancho para centrar bien */
+    gap: 2.5rem;
+}
+.listado-item .precios-dos span {
+    width: 80px; /* Ancho fijo para alinear en columnas */
+    text-align: right;
+    margin-left: 1rem;
+}
+
+.listado-header .precios-dos span {
+    width: 80px; 
+    text-align: right;
+    position: relative;
+    left: 18px; 
+}
+
+.listado-header .precios-dos span + span {
+    margin-left: 1.5rem;
+}
+
+.precios-uno {
+    white-space: nowrap;
+}
+
+/* Estilos de Textos de Listado */
+.listado-item-titulo {
+    font-family: var(--fuente-titulos);
+    font-size: 1.25rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+.titulo-region {
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    font-weight: 400;
+    font-style: italic;
+}
+
+.listado-item-descripcion-general {
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    margin-top: 0.5rem;
+}
+.datos-generales {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #cdc29e;
+    margin-bottom: 0.3rem;
+}
+
+/* Estilos específicos de Vinos */
+.listado-item-descripcion-vino {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+}
+.vino-datos {
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+}
+.vino-datos strong {
+    color: var(--color-texto-principal); /* "Bodega:", "Varietal:", etc. */
+}
+.vino-descripcion {
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+
+/* --- Estilos Vinos Destacados (Banners) --- */
+
+.banners-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.banner-destacado {
+    display: flex;
+    max-height: 300px;
+    height: 300px;
+    background-color: #000;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.banner-imagen {
+    flex-basis: 50%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    /* Esfumado a negro (¡tu requisito!) */
+    mask-image: linear-gradient(to right, black 60%, transparent 100%);
+}
+
+.banner-textos {
+    flex-basis: 65%; /* 50% + 15% de superposición = 65% */
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Lógica de Alternancia: Img-Texto */
+.banner-destacado.layout-img-texto .banner-textos {
+    text-align: right;
+    align-items: flex-end;
+}
+.banner-destacado.layout-img-texto .banner-imagen {
+    margin-left: -15%; /* Superposición de 15% */
+}
+
+
+.banner-destacado.layout-texto-img .banner-imagen { 
+    order: 2;
+    margin-right: -15%; /* Superposición */
+    /* Invertimos el esfumado */
+    mask-image: linear-gradient(to left, black 60%, transparent 100%);
+}
+.banner-destacado.layout-texto-img .banner-textos { 
+    order: 1;
+    text-align: left;
+    align-items: flex-start; /* Alinea el contenido a la derecha */
+}
+
+.banner-titulo {
+    font-family: var(--fuente-titulos);
+    font-size: 1.8rem;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+.banner-region {
+    font-size: 1rem;
+    color: #cdc29e;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.banner-datos {
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    margin-bottom: 1rem;
+}
+.banner-datos strong {
+    color: var(--color-texto-principal);
+}
+.banner-descripcion {
+    font-size: 1rem;
+    color: var(--color-texto-secundario);
+    font-style: italic;
+}
+
+.precio-etiqueta {
+    display: none;
+}
+
+
+/* --- RESPONSIVE (Ajustes para Móvil) --- */
+
+@media (max-width: 900px) {
+
+    /* .precio-etiqueta {
+    display:block;
+    } */
+    .seccion-titulo {
+        font-size: 2rem;
+    }
+    .seccion-subtitulo {
+        font-size: 1.5rem;
+    }
+    
+    /* Coctel Cards en Móvil (se apilan) */
+    .card-coctel {
+        flex-direction: column; /* Apilado vertical */
+    }
+
+    .card-coctel.layout-texto-img .card-coctel-imagen { order: 1; }
+    .card-coctel.layout-texto-img .card-coctel-textos { order: 2; }
+    .card-coctel.layout-texto-img .card-coctel-precio { order: 3; }
+    
+    .card-coctel-imagen {
+        width: 100%;
+        max-height: 200px;
+        mask-image: linear-gradient(to bottom, black 60%, transparent 100%) !important;
+    }
+    .card-coctel-textos {
+        padding: 1rem;
+        text-align: center;
+    }
+    .card-coctel-precio {
+        padding: 0 0 1rem 0;
+        text-align: center;
+    }
+    
+    /* Listados en Móvil */
+    .listado-item, .listado-header {
+        /* Eliminamos márgenes laterales del 10% */
+        padding: 1rem 0;
+        flex-direction: column; /* Apilamos texto y precio */
+    }
+    .listado-header {
+        /* El header fantasma no es útil en móvil */
+        display: none;
+    }
+    .listado-item-textos {
+        padding-right: 0;
+        margin-bottom: 1rem;
+    }
+    .listado-item-precios {
+    /* (Tus estilos existentes) */
+    border-top: 1px dashed var(--color-texto-secundario);
+    padding-top: 1rem;
+    display: flex;           /* Ya lo era, pero confirmamos */
+    justify-content: center; /* ¡Centra el contenido! */
+    align-items: center;
+    width: 100%;             /* Asegura que ocupe el ancho */
+    padding-left: 0;         /* ¡Quitamos el padding que lo corría! */
+    }
+
+    .precios-dos {
+    display: flex;
+    justify-content: center;
+    width: auto; /* Anula el width: 100% de desktop */
+    gap: 2.5rem; /* <-- ESTA ES LA "BUENA SEPARACIÓN" (40px) */
+    }
+
+    .precio-etiqueta {
+    font-size: 0.8em; /* Más pequeña */
+    font-style: italic; /* En cursiva */
+    font-weight: 400; /* No negrita */
+    color: var(--color-texto-secundario);
+    margin-left: 0.25em; /* Un pequeño espacio */
+    }
+
+    /* Banners Destacados en Móvil */
+    .banner-destacado {
+        flex-direction: column;
+        height: auto;
+        max-height: none;
+    }
+        .banner-destacado.layout-texto-img .banner-imagen,
+        .banner-destacado.layout-texto-img .banner-textos {
+        order: unset; /* 'unset' resetea la propiedad a su valor por defecto */
+    }
+    .banner-imagen {
+        flex-basis: auto; /* Reseteamos base */
+        height: 200px;
+        margin: 0 !important; /* Reseteamos superposición */
+        mask-image: linear-gradient(to bottom, black 60%, transparent 100%) !important;
+    }
+    .banner-textos {
+        flex-basis: auto;
+        text-align: left !important; /* Siempre a la izquierda */
+        align-items: flex-start !important;
+        padding: 1.5rem;
+    }
+
+    /* --- INICIO DEL ARREGLO DE PRECIOS MÓVIL --- */
+
+/*
+  SOLUCIÓN PROBLEMA 1 (Centrado):
+  El contenedor principal de precios.
+  Lo hacemos flex y centramos su contenido.
+*/
+.listado-item-precios {
+    display: flex;
+    justify-content: center; /* ¡Centra el contenido! */
+    align-items: center;
+    width: 100%;
+    padding-left: 0; /* Anula el padding de desktop */
+
+    /* La línea punteada que separa del texto */
+    border-top: 1px dashed var(--color-texto-secundario);
+    padding-top: 1rem;
+}
+
+/*
+  Organiza los DOS precios (ej. Copa y Botella)
+*/
+.precios-dos {
+    display: flex;
+    justify-content: center;
+    width: 100%; /* Ocupa el ancho para centrar bien */
+    gap: 2.5rem; /* <-- La "buena separación" entre precios */
+}
+
+/*
+  Organiza el precio ÚNICO (ej. Cerveza Envasada)
+*/
+.precios-uno {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/*
+  SOLUCIÓN PROBLEMA 2 (Etiqueta abajo):
+  Esto FUERZA a que el precio y su etiqueta
+  permanezcan juntos en la misma línea.
+*/
+.precio-item {
+    white-space: nowrap;
+}
+
+/*
+  SOLUCIÓN PROBLEMA 3 (Mostrar en móvil):
+  Re-mostramos la etiqueta y le damos estilo.
+*/
+.precio-etiqueta {
+    display: inline; /* ¡Se muestra en móvil! */
+    font-size: 0.8em; /* Más pequeña */
+    font-style: italic; /* En cursiva */
+    font-weight: 400; /* No negrita */
+    color: var(--color-texto-secundario);
+    margin-left: 0.25em; /* Un pequeño espacio */
+}
+
+/* --- FIN DEL ARREGLO DE PRECIOS MÓVIL --- */
+}
+
+/* --- FIX CARTA HÍBRIDA V3 (Ajustes de Altura, Texto y Esfumado Perfecto) --- */
+
+/* 1. Contenedor: Lista continua sin espacios */
+#cocteles .productos-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* 2. El Renglón/Card (Base) */
+.coctel-row-con-foto {
+    display: flex;
+    width: 100%;
+    /* CAMBIO 1: Altura reducida un ~30% (de 300px a 220px) */
+    height: 220px; 
+    position: relative;
+    overflow: hidden;
+    /* Fondo base sólido (IMPORTANTE para el esfumado) */
+    background-color: #1a1a1a; 
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* 3. Layout Alternado */
+.coctel-row-con-foto.layout-img-texto { flex-direction: row; }
+.coctel-row-con-foto.layout-texto-img { flex-direction: row-reverse; }
+
+/* 4. La Imagen */
+.coctel-img-container {
+    width: 50%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    /* Asegura que el contenedor de la imagen tenga el mismo fondo base */
+    background-color: #1a1a1a;
+}
+
+.coctel-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.5s ease;
+    /* Truco para evitar líneas blancas en algunos navegadores al escalar */
+    backface-visibility: hidden;
+}
+
+.coctel-row-con-foto:hover .coctel-img-container img {
+    transform: scale(1.05);
+}
+
+@media (min-width: 901px) {
+    .coctel-row-con-foto {
+        transition: background-color 0.3s ease;
+    }
+
+    .coctel-row-con-foto:hover {
+        background-color: #222; /* Se aclara apenas un poco el fondo */
+    }
+
+    .coctel-row-con-foto:hover .coctel-img-container img {
+        transform: scale(1.08) rotate(1deg); /* Zoom + rotación sutil muy "fancy" */
+    }
+}
+
+/* 5. Los Degradados (El "Esfumado Perfecto") */
+.coctel-img-container::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    /* Un poco más ancho para asegurar que cubra el borde */
+    width: 101%; 
+    z-index: 1;
+    /* El truco: usar el MISMO color de fondo (#1a1a1a) para la parte opaca */
+}
+
+/* Si la imagen está a la IZQUIERDA, fundimos hacia la DERECHA */
+.coctel-row-con-foto.layout-img-texto .coctel-img-container::after {
+    /* Empieza transparente y se vuelve sólido #1a1a1a hacia el borde derecho */
+    background: linear-gradient(to right, transparent 30%, #1a1a1a 98%);
+    right: -1px; /* Asegura solapamiento */
+}
+
+/* Si la imagen está a la DERECHA, fundimos hacia la IZQUIERDA */
+.coctel-row-con-foto.layout-texto-img .coctel-img-container::after {
+    background: linear-gradient(to left, transparent 30%, #1a1a1a 98%);
+    left: -1px;
+}
+
+/* 6. El Texto (Ajustes de tamaño y color) */
+.coctel-info {
+    width: 50%;
+    /* CAMBIO 2: Padding reducido para el nuevo espacio */
+    padding: 1.5rem 2rem; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2;
+    background-color: #1a1a1a; /* Asegura fondo sólido */
+}
+
+.coctel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.8rem; /* Un poco menos de margen */
+    border-bottom: 1px solid var(--color-primario-rojo);
+    padding-bottom: 0.5rem;
+}
+
+.coctel-header h3 {
+    font-family: var(--fuente-titulos);
+    /* CAMBIO 2: Fuente más chica (de 1.8 a 1.5rem) */
+    font-size: 1.5rem; 
+    color: #fff;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.precio-destacado {
+    /* CAMBIO 2: Fuente más chica (de 1.5 a 1.3rem) */
+    font-size: 1.3rem;
+    font-weight: bold;
+    /* CAMBIO 3: Precio en BLANCO */
+    color: #fff; 
+    white-space: nowrap;
+}
+
+.descripcion {
+    /* CAMBIO 2: Fuente un poco más chica (0.9rem) */
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #ccc;
+    font-style: italic;
+    margin: 0; /* Quitamos margen default de p */
+}
+
+/* 7. Ajustes Mobile */
+@media (max-width: 768px) {
+    .coctel-row-con-foto {
+        flex-direction: column !important;
+        height: auto; /* Altura automática en móvil */
+    }
+    
+    .coctel-img-container, .coctel-info {
+        width: 100%;
+    }
+    
+    .coctel-img-container {
+        /* Altura fija un poco menor en móvil */
+        height: 200px; 
+    }
+    
+    /* En móvil el degradado es de ABAJO hacia ARRIBA para fundirse con el texto de abajo */
+    .coctel-row-con-foto.layout-img-texto .coctel-img-container::after,
+    .coctel-row-con-foto.layout-texto-img .coctel-img-container::after {
+         /* La parte inferior es sólida #1a1a1a y sube a transparente */
+         background: linear-gradient(to top, #1a1a1a 20%, transparent 100%);
+         width: 100%;
+         height: 102%; /* Asegura solapamiento inferior */
+         bottom: -1px;
+         right: auto; left: auto; /* Reseteamos posiciones de desktop */
+    }
+
+    .coctel-info {
+        padding: 1.2rem 1.5rem; /* Padding móvil reducido */
+        text-align: center;
+    }
+    
+    .coctel-header {
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        border-bottom: none; /* Quitamos la línea roja en móvil para limpiar */
+        margin-bottom: 0.5rem;
+    }
+    
+    .coctel-header h3 {
+        font-size: 1.4rem;
+    }
+    .precio-destacado {
+        font-size: 1.2rem;
+    }
+}
+
+/* --- BOTÓN DESCARGA PDF --- */
+.btn-flotante-pdf {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--color-primario-rojo);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 50px; /* Redondo */
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    z-index: 1000; /* Por encima de todo */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre icono y texto */
+    transition: transform 0.3s ease, background-color 0.3s;
+}
+
+.btn-flotante-pdf:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05) translateY(-2px);
+}
+
+.btn-flotante-pdf i {
+    font-size: 1.4rem;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 768px) {
+    .btn-flotante-pdf {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+}

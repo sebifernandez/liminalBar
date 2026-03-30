@@ -1,0 +1,2401 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+}
+
+body {
+    font-family: "Cabin", sans-serif;
+    background: #000;
+    max-width: 100vw;
+}
+
+/* ===== ESTILOS DEL PRELOADER ===== */
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000; /* Fondo negro sólido */
+  z-index: 9999; /* Por encima de todo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Transición para el fade-out */
+  opacity: 1;
+  transition: opacity 0.75s ease;
+}
+
+.preloader-logo {
+  width: 100px; /* Ajusta el tamaño del logo */
+  animation: spin 2s linear infinite;
+}
+
+/* Clase que usará JS para ocultarlo */
+#preloader.preloader-hidden {
+  opacity: 0;
+  pointer-events: none; /* Impide clics */
+}
+
+/* Animación de giro ("dando vueltas") */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ================================== */
+
+/* Ocultar botones de reserva antiguos temporalmente */
+.btn-reservar, .btn-reservar2 {
+    display: none !important;
+}
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative; /* IMPORTANTE para el menú desplegable */
+}
+
+.logo img {
+  height: 50px;
+  transition: 0.3s;
+}
+
+.logo img:hover {
+    transform: scale(1.1);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.nav-links a {
+  color: #f9f9f9;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 18px;  
+  font-style: normal;
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.nav-links a:hover {
+  transform: scale(1.1);
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 4. Botón Idioma (Ajuste de tamaño) */
+.btn-lang {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 0.5rem 1rem; /* Menos padding */
+    height: 40px; /* Altura fija igual a los otros si es necesario */
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+.btn-lang:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* ------ BOTÓN NEWSLETTER (Basado en .btn-reservar) --------*/
+.btn-newsletter {
+    text-decoration: none;
+    margin: 5px;
+    height: 50px;
+    padding-left: 16px;
+    padding-right: 16px;
+    text-transform: uppercase;
+    background-color: #f9f9f9; /* Color claro para destacar */
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #000; /* Texto oscuro */
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 18px;
+    text-align: center;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: all 0.3s ease 0s;
+    vertical-align: middle;
+    justify-content: center;
+    align-items: center;
+    display: inline-flex;
+    font-style: normal;
+}
+
+.btn-newsletter:hover {
+    background-color: #ddd;
+    transform: scale(1.05);
+}
+
+.hamburger {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: none; /* Hidden on desktop by default */
+}
+
+
+  /* ------ SECCIÓN HERO --------*/
+
+  #container {
+    min-height: 100vh;
+    position: relative;
+  }
+
+  #containermobile {
+    display: none;
+  }
+
+  /* UTILIZAR UNICAMENTE CON VIDEO MEDIANTE ENLACE */
+    .video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -3;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* UTILIZAR UNICAMENTE CON VIDEO MEDIANTE ENLACE */
+  .video-container iframe {
+    position: absolute; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    min-height: 100vh;
+    min-width: 177.77vh; 
+    width: 100vw; 
+    height: 56.25vw;
+  }
+
+  .video-container .fondo {
+    position: absolute;
+    bottom: -50%;
+    right: -50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+    /* CASO A: Pantallas "Altas" o Normales (Menos anchas que 16:9) */
+/* Aquí priorizamos que cubra la ALTURA (height) */
+@media (max-aspect-ratio: 16/9) {
+    .video-container .fondo {
+        width: 177.78vh; /* 16/9 = 1.77. Forzamos el ratio */
+        height: 100vh;
+    }
+}
+
+/* CASO B: Pantallas "Anchas" (Más anchas que 16:9, como laptops modernas) */
+/* Aquí priorizamos que cubra la ANCHURA (width) */
+@media (min-aspect-ratio: 16/9) {
+    .video-container .fondo {
+        width: 100vw;
+        height: 56.25vw; /* 9/16 = 0.5625. Mantiene el ratio */
+    }
+}
+
+/* CASO C: EL FRENO DE MANO para Ultra-Wide (Opcional pero recomendado) */
+/* Si la pantalla es RIDÍCULAMENTE ancha (ej. más de 2000px), dejamos de estirar */
+@media (min-width: 2000px) { 
+    .video-container .fondo {
+        width: 2000px !important; /* Tope máximo de ancho */
+        height: 1125px !important; /* El alto proporcional (2000 * 0.5625) */
+        
+        /* Como el contenedor tiene background negro y flex-center, 
+           el video quedará centrado y con bordes negros elegantes a los lados */
+    }
+}
+
+  .scroll-down {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  opacity: 0.7;
+}
+
+.arrow-down {
+  width: 40px;
+  height: auto;
+  animation: bounce 1.5s infinite;
+}
+
+.scroll-text {
+  margin-top: 5px;
+  color: #fff;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  letter-spacing: 1px;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+
+    /* ------ SECCIÓN INICIO TEXTO --------*/
+
+  .segunda {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+  }
+
+    .primerbox {
+    max-width: 980px;
+    max-height: 450px;
+    color: #f9f9f9;
+    text-align: center;
+    margin: 0;
+    background: transparent;
+  }
+
+  .primerbox h1 {
+    margin-bottom: 50px;
+  }
+
+    .segunda h1 {
+    font-size: 40px;
+  }
+
+  .segunda h3 {
+    font-size: 30px;
+  }
+
+    /* ------ SECCIÓN PARALLAX RESERVA --------*/
+
+  .parallax-section {
+  position: relative;
+  background-image: url('../img/parallax.jpg');
+  background-size: cover;
+  background-position: center center;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.parallax-content {
+  position: relative;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo para mejor legibilidad */
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.parallax-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+}
+
+    /* ------ SECCIÓN HISTORIA --------*/
+
+.historia-section {
+  background-color: #111;
+  color: #fff;
+}
+
+.historia-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.historia-texto {
+  width: 65%;
+  z-index: 2;
+  position: relative;
+  padding: 10%;
+}
+
+.historia-texto, #historia-texto {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+.historia-texto h2 {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  line-height: 1;
+}
+
+.historia-texto p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  color: #ccc;
+}
+
+.historia-imagen {
+  width: 55%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.historia-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+    /* ------ SECCIÓN GALERÍA --------*/
+
+.gallery-section {
+    background-color: #000;
+    color: #fff;
+    padding-top: 5rem;
+    padding-bottom: 2rem;
+}
+
+.gallery-title-container {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.gallery-title-container h2 {
+    font-size: 2.8rem;
+    font-family: 'Abril Fatface', serif;
+}
+
+.gallery-title-container p {
+    color: #ccc;
+}
+
+.carousel-gallery-container {
+    position: relative;
+    max-width: 100vw;
+    overflow: hidden;
+}
+
+.gallery-track {
+    display: flex;
+    /* Efecto 'Jiggle' o 'Overshoot' con curva cubic-bezier */
+    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
+}
+
+.gallery-slide {
+    flex: 0 0 100vw; 
+    height: 60vh; 
+    width: 100vw;
+    
+    /* Mostrar la imagen COMPLETA (con posible fondo negro) */
+    object-fit: contain; 
+    background-color: #000; 
+    
+    pointer-events: none; 
+}
+
+/* Controles de Navegación */
+.gallery-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    padding: 1rem 0.5rem;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 1.5rem;
+    transition: background 0.3s;
+}
+
+.gallery-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.left-gallery-btn {
+    left: 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.right-gallery-btn {
+    right: 0;
+    border-radius: 4px 0 0 4px;
+}
+
+/* Indicadores */
+.gallery-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.gallery-indicators .indicator {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.gallery-indicators .indicator.active {
+    background-color: #fff;
+    transform: scale(1.2);
+}
+
+
+    /* ------ SECCIÓN CALENDARIO --------*/
+
+.event-carousel {
+  background: #0a0a0a;
+  padding: 4rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-section-title {
+  text-align: center;
+  font-size: 2.8rem;
+  color: #fff;
+  margin-bottom: 2rem;
+  font-family: 'Abril Fatface', serif;
+  letter-spacing: 1px;
+}
+
+.carousel-container {
+  position: relative;
+  padding: 0 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #111;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 1rem;
+  transition: transform 0.5s ease;
+  padding: 1rem;
+}
+
+.event-card {
+  flex: 0 0 22%;
+  background: #222;
+  color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  transform: scale(0.9);
+  transition: transform 0.4s ease;
+  opacity: 0.9;
+  position: relative;
+}
+
+.event-card.active {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+.event-card.past::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(50, 50, 50, 0.7);
+  z-index: 2;
+}
+
+.card-image {
+  position: relative;
+  height: 60%;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-date {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+.card-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 40%;
+}
+
+.card-content h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.card-descripcion-precio {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-bottom: 1rem; /* Separa del botón de reservar */
+  font-style: italic;
+  text-align: center;
+  /* El flex-start del paso 1 se encargará de alinearlo arriba */
+}
+
+.card-content p {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* ------ BOTÓN LIVE Y ARCHIVO --------*/
+
+.btn-adicional {
+    margin-top: 0.5rem; /* Espacio entre el botón principal y este */
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    text-align: center;
+    z-index: 3;
+    position: relative;
+    transition: all 0.3s ease;
+    display: block; /* Ocupa todo el ancho disponible */
+}
+
+/* Estilo para REVIVÍ EL CONCIERTO (Archivo) */
+.btn-archive {
+    background-color: rgb(66, 0, 0);
+}
+
+.btn-archive:hover {
+    background-color: rgb(90, 0, 0);
+    transform: scale(1.02);
+}
+
+/* Estilo para VER EN VIVO (LIVE) */
+.btn-live {
+    background-color: #ff0000; /* Rojo vibrante */
+    animation: pulse 1.5s infinite; /* Aplicar animación de pulso */
+}
+
+.btn-live:hover {
+    background-color: #cc0000;
+    transform: scale(1.05);
+}
+
+/* Animación de Pulso (El efecto "Live") */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+.btn-reservar:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  font-size: 2rem;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s;
+}
+
+.carousel-btn.left {
+  left: 0;
+}
+
+.carousel-btn.right {
+  right: 0;
+}
+
+.carousel-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+    /* ------ SECCIÓN MODAL CALENDARIO --------*/
+
+.modal-calendario {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background: #111;
+  color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 95%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.cerrar-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.barra-filtros {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.barra-filtros input,
+.barra-filtros select {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.contenido-modal {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendario-acceso {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+    /* ------ ESTILOS ADICIONALES PARA EVENTOS ESPECIALES --------*/
+
+/* Estilo general para cards especiales (Cerrado/Privado) */
+.event-card.special {
+  background: #333;
+  color: #fff;
+  border: 1px dashed #666;
+  text-align: center;
+  flex: 0 0 22%; /* Mantener el ancho del carrusel */
+  transform: scale(0.9);
+}
+.event-card.special.active {
+    transform: scale(1.05);
+}
+
+/* Fuerza el texto a ser blanco en cards especiales */
+.event-card.special h3, 
+.event-card.special p {
+  color: #fff;
+}
+
+/* Asegura que el contenido se ajuste correctamente */
+.event-card.special .card-content {
+  justify-content: center;
+  align-items: center;
+  height: 40%;
+}
+
+/* Estilo para el fondo de la imagen de evento especial */
+/* .card-image.special {
+  filter: grayscale(100%) brightness(0.5); /* Oscurece y desatura la imagen especial */
+/*} */
+
+/* Estilo específico para "Cerrado" */
+.event-card.closed {
+  border-color: #000;
+  background-color: #1a1a1a;
+}
+
+/* Estilo específico para "Privado" */
+.event-card.private {
+  border-color: gold;
+  background-color: #2b2b00;
+}
+
+.special-links {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.special-links a {
+    color: #ffd700;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 5px;
+    z-index: 3;
+    position: relative;
+}
+
+.special-links a:hover {
+    text-decoration: underline;
+}
+
+    /* ------ SECCIÓN FORMULARIO --------*/
+
+.contact-section {
+  padding: 5rem 2rem;
+  background-color: #111;
+  color: #fff;
+}
+
+.contact-section h2 {
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+.contact-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.tab.active {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-bottom: 2px solid #fff;
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-form {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-form.active {
+  display: flex;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #222;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contact-form button {
+  background-color: #fff;
+  color: #000;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.contact-form button:hover {
+  background-color: #ddd;
+  transform: scale(1.05);
+}
+
+
+/* ------ FOOTER ------*/
+
+.footer {
+  background-color: #000;
+  color: #ccc;
+  padding: 2rem 1rem 1rem;
+  font-size: 0.9rem;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  height: 40px;
+}
+
+.footer-right {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.footer-right a {
+  color: #ccc;
+  font-size: 1.8rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-right a:hover {
+  color: #fff;
+  transform: scale(1.2);
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.footer-bottom a {
+    text-decoration: none;
+    color: #666;
+}
+
+
+/* ------ SECCIÓN MODAL NEWSLETTER --------*/
+
+.newsletter-modal {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 2000; /* Mayor que cualquier otro elemento */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.85); /* Oscurecer el fondo */
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+}
+
+.newsletter-modal.show {
+    display: flex;
+}
+
+.modal-content-newsletter {
+    background-color: #111;
+    margin: 10% auto;
+    padding: 40px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    position: relative;
+    color: #f9f9f9;
+    text-align: center;
+    animation: fadeIn 0.4s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.close-newsletter-modal {
+    color: #aaa;
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.close-newsletter-modal:hover,
+.close-newsletter-modal:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content-newsletter h3 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    font-family: 'Abril Fatface', serif;
+}
+
+.modal-content-newsletter p {
+    margin-bottom: 25px;
+    color: #ccc;
+}
+
+#newsletterForm input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    background-color: #222;
+    color: #fff;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#newsletterForm button {
+    width: 100%;
+}
+
+.error-message {
+    color: #ff4d4d;
+    display: block;
+    height: 1.2rem;
+    margin-top: -10px;
+    text-align: left;
+}
+
+/* Mensaje de Éxito */
+#newsletterSuccessMessage {
+    display: none;
+    padding: 20px;
+}
+
+/* ------ SECCIÓN UBICACIÓN (NUEVA) --------*/
+
+.location-section {
+  background-color: #111; /* Coherente con .contact-section */
+  color: #fff;
+  padding: 5rem 2rem;
+}
+
+.location-container {
+  max-width: 1200px; /* Mantenemos la coherencia del ancho */
+  margin: 2rem auto 0;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: nowrap; /* Evitamos que se envuelva en desktop */
+}
+
+/* El texto de la dirección */
+.location-address {
+  flex: 1; /* Ocupa 1 parte */
+  text-align: right;
+  font-size: 1.2rem;
+  color: #ccc;
+  line-height: 1.7;
+}
+
+.location-address p:first-child {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* El contenedor del mapa */
+.location-map-wrapper {
+  flex: 2; /* Ocupa 2 partes (más grande) */
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden; /* Para que el iframe respete el borde redondeado */
+  border: 1px solid #333;
+}
+
+.location-map-wrapper iframe {
+  width: 100%;
+  height: 400px;
+  display: block;
+  border: 0;
+  
+  /* UX/UI: Filtro para mapa oscuro */
+  filter: invert(100%) grayscale(80%);
+}
+
+
+/* ------ MEDIAQUERYS --------*/
+
+@media (max-width: 900px) {
+  .nav-buttons {
+    gap: 10px;
+  }
+
+  #nav-btn-newsletter {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    height: auto;
+  }
+
+  .btn-lang-list {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    margin-top: 1rem;
+    width: 100px;
+    align-self: center;
+  }
+  
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #000;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1rem;
+    border-radius: 5px;
+    width: max-content;
+  }
+
+  .nav-links.active {
+    display: flex;
+    align-items: flex-end; /* Alinea todo a la derecha */
+    text-align: right;
+    padding-right: 2rem;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+    #container {
+    display: none;
+    }
+
+    #containermobile {
+    display: block;
+    min-height: 100vh;
+    position: relative;
+    max-width: 100vh;
+    }
+
+.fondomobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -3;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; 
+    background: #000; 
+}
+
+.fondomobile .fondo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vmax;
+    height: 100vmax;
+    pointer-events: none; 
+}
+
+        .primerbox h1 {
+      font-size: 34px;
+    }
+
+    .primerbox h3 {
+      font-size: 19px;
+    }
+
+    .segunda h1 {
+    font-size: 40px;
+  }
+
+  .segunda h3 {
+    font-size: 30px;
+  }
+
+    .parallax-content h2 {
+    font-size: 1.4rem;
+  }
+
+  .historia-container {
+    flex-direction: column;
+    position: relative;
+  }
+
+  .historia-texto {
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    padding: 3rem 1rem;
+  }
+
+  .historia-imagen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .historia-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4); /* Oscurece la imagen */
+  }
+
+  .historia-texto h2 {
+    font-size: 2.5rem;
+    color: #f9f9f9;
+  }
+
+  .historia-texto p {
+    color: #ddd;
+    font-size: 1.1rem;
+  }
+
+  .event-card {
+    flex: 0 0 90%;
+  }
+  .card-content {
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+  }
+
+  .event-card.special {
+      flex: 0 0 90%;
+  }
+
+  .event-card.special .card-content p {
+    margin-bottom: 0rem;
+  }
+
+  /* .card-content p {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; 
+    -webkit-box-orient: vertical;
+    margin-bottom: 0.8rem;
+  } */
+
+  .btn-reservar {
+    align-self: flex-start;
+  }
+
+.btn-adicional {
+    position: absolute;
+    bottom: 10px;  /* ajustá a gusto */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;  /* opcional: que quede prolijo */
+    text-align: center;
+
+    padding: 0.2rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    z-index: 5;
+}
+
+.card-content {
+    padding: 1rem;
+    padding-bottom: 4rem; /* espacio reservado para el botón */
+    display: flex;
+    flex-direction: column;
+    height: 40%;
+    overflow: hidden;
+}
+
+  .contenido-modal {
+    flex-direction: row;
+    gap: 2rem;
+  }
+
+  #calendario {
+    flex: 1;
+  }
+
+  #detalleEvento {
+    flex: 1;
+  }
+  
+    .gallery-slide {
+        height: 40vh; /* Menos altura en móvil */
+    }
+    .gallery-btn {
+        padding: 0.5rem 0.3rem;
+    }
+
+    .location-container {
+    flex-direction: column; /* Apila los elementos */
+    gap: 2.5rem;
+}
+
+.location-address {
+    text-align: center; /* Centra el texto en móvil */
+    order: 1; /* La dirección va primero */
+}
+
+.location-map-wrapper {
+    width: 100%;
+    order: 2; /* El mapa va segundo */
+}
+  }
+
+@media (max-width: 600px) {
+  .footer-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .footer-right {
+    justify-content: center;
+  }
+  
+  .contenido-modal {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 900px) {
+
+    .event-card.special .card-content {
+        /* 1. Reseteamos el padding que hereda de la regla móvil de .card-content */
+        padding: 0rem; 
+        
+        /* 2. Nos aseguramos de que el contenido (título y p) esté centrado */
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* Opcional: Ajustamos el tamaño del título de las cards especiales en móvil */
+    .event-card.special h3 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+    }
+
+    /* Ajuste para que el video móvil también cubra todo */
+    .fondomobile .fondo {
+        min-width: 100%;
+        min-height: 100%;
+    }
+}
+
+#btn-lang-toggle {
+    background-color: #000 !important;
+    color: #fff !important;
+    border: 1px solid #fff !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px; /* Ancho fijo */
+    height: 40px; /* Altura fija */
+    padding: 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-left: 1rem;
+    cursor: pointer;
+    z-index: 100;
+}
+
+#btn-lang-toggle:hover {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+/* 1. Estirar las Cards (Desktop) */
+.event-card {
+    /* Altura mínima mayor para que no se vean "achanchadas" */
+    min-height: 440px !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+.card-image {
+    /* La imagen ocupa el 55% de la altura, el resto es texto/botones */
+    height: 55% !important; 
+    flex-shrink: 0 !important;
+}
+
+.card-content {
+    height: 45% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 1rem 1rem 75px 1rem !important; /* 75px abajo para dejar espacio a los botones */
+    position: relative !important; /* Clave para fijar botones */
+    overflow: hidden !important; /* Si el texto es eterno, que no rompa la card */
+}
+
+/* 2. Fijar Botones al Fondo (Absolute) */
+.btn-reservar, .btn-adicional {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 85% !important; /* Que no toquen los bordes */
+    text-align: center !important;
+}
+
+/* Botón Principal (Reservar / Finalizado) */
+.btn-reservar {
+    bottom: 45px !important; /* Un poco más arriba */
+    z-index: 5 !important;
+}
+
+/* Botón Adicional (Vivo / Archivo) */
+.btn-adicional {
+    bottom: 10px !important; /* Pegado al fondo */
+    margin-top: 0 !important; /* Quitamos margen viejo */
+    z-index: 6 !important;
+}
+
+/* Si solo hay un botón (Reservar), que se quede en su lugar. 
+   Si están los dos, se apilan gracias a los "bottom" distintos. */
+
+/* 3. Limpieza de Eventos Privados/Cerrados (Adiós borde amarillo) */
+.event-card.special {
+    border: 1px solid #444 !important; /* Borde gris sutil en vez de amarillo punteado */
+    background-color: #222 !important; /* Fondo oscuro uniforme */
+}
+
+/* Quitamos el fondo amarillo o estilos raros al texto */
+.event-card.special h3, 
+.event-card.special p {
+    background: transparent !important;
+    color: #fff !important;
+}
+
+/* El link de Instagram en amarillo sí lo dejamos para que resalte */
+.special-links a {
+    color: #FFD700 !important;
+}
+
+
+/* 4. Ajustes Mobile (Botones chicos y Cards altas) */
+@media (max-width: 900px) {
+.event-card {
+        min-height: 400px !important; /* Antes 450px */
+        flex: 0 0 95% !important; /* Antes 90% -> Ahora más anchas */
+    }
+
+    /* Ajuste de fuente en títulos para que "Evento Privado" no se rompa mal */
+    .event-card h3 {
+        font-size: 1.2rem !important; 
+        white-space: normal !important;
+        overflow-wrap: break-word !important; 
+        word-break: break-word !important; 
+        text-align: center !important;
+        width: 100% !important;
+        display: block !important;
+        overflow: hidden !important;
+    }
+
+    /* Botones compactos */
+    .btn-reservar, .btn-adicional, .btn-newsletter {
+        font-size: 0.8rem !important; 
+        padding: 0.4rem 0.5rem !important; 
+        height: auto !important; 
+        min-height: 35px !important;
+    }
+    
+    #nav-btn-newsletter {
+        font-size: 0.8rem !important;
+        padding: 0.3rem 0.6rem !important;
+    }
+
+    .btn-reservar { bottom: 50px !important; }
+    .btn-adicional { bottom: 10px !important; }
+    
+    .card-content p {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+    }
+}
+
+/* --- FIX ENROQUE BOTONES (Desktop vs Mobile) --- */
+
+/* Por defecto (Desktop): Ocultamos el botón de idioma de la lista (móvil) */
+#btn-lang-mobile {
+    display: none !important;
+}
+
+/* Estilo del botón de idioma Desktop */
+#btn-lang-desktop {
+    background: #000 !important;
+    border: 1px solid #fff !important;
+    color: #fff !important;
+    width: 60px;
+    height: 40px;
+    padding: 0;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#btn-lang-desktop:hover {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+/* En MÓVIL */
+@media (max-width: 900px) {
+    /* Ocultamos el de escritorio */
+    #btn-lang-desktop {
+        display: none !important;
+    }
+    
+    /* Mostramos el de la lista (móvil) */
+    #btn-lang-mobile {
+        display: block !important;
+        margin: 1rem auto !important; /* Centrado */
+        width: 100px !important;
+    }
+
+    /* Ajuste para que el Newsletter en la lista se vea bien */
+    #nav-btn-newsletter-list {
+        margin: 0.5rem 0;
+        width: 100%;
+    }
+}
+
+/* --- FIX NEWSLETTER HÍBRIDO (Desktop vs Mobile) --- */
+
+/* 1. Estado Base (Desktop): Ocultamos el de móvil */
+#nav-btn-newsletter-mobile {
+    display: none !important;
+}
+
+/* 2. Estado Mobile (Menos de 900px) */
+@media (max-width: 900px) {
+    
+    /* Mostramos el botón Newsletter Móvil junto a la hamburguesa */
+    #nav-btn-newsletter-mobile {
+        display: inline-block !important;
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+        margin-right: 5px;
+        height: auto;
+    }
+
+    /* Ocultamos el botón Newsletter de la lista desplegable (para no tenerlo duplicado) */
+    #nav-btn-newsletter-list {
+        display: none !important;
+    }
+}
+
+/* --- FIX TEXTO SUPERPUESTO (Móviles pequeños) --- */
+@media (max-width: 550px) {
+    /* Ajuste del Título */
+    .event-card h3 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.3rem !important;
+        /* Aseguramos que el título no ocupe más de 2 líneas */
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        flex-shrink: 0 !important; /* Que no se aplaste */
+    }
+
+    /* Ajuste de la Descripción (Privado o Regular) */
+    .card-content p {
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 0 !important;
+        
+        /* MAGIA: Corta el texto a las 3 líneas con "..." */
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important; 
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    /* Ajuste extra para el contenedor de texto */
+    .card-content {
+        justify-content: flex-start !important; /* Alinea todo arriba */
+        gap: 0.5rem !important; /* Espacio entre elementos */
+    }
+}
+
+/* --- FIX CARDS ESPECIALES (Cerrado/Privado) EN MÓVIL --- */
+
+@media (max-width: 900px) {
+    /* 1. Quitar el espacio reservado para botones que no existen */
+    .event-card.special .card-content {
+        padding-bottom: 1.5rem !important; /* Padding normal abajo */
+        justify-content: center !important; /* Centrar todo verticalmente */
+        gap: 1rem !important; /* Espacio entre Título, Texto y Link */
+    }
+
+    /* 2. Asegurar que el texto NO se corte */
+    .event-card.special .card-content p {
+        display: block !important;
+        -webkit-line-clamp: unset !important; /* Anula el recorte de líneas */
+        overflow: visible !important;
+        height: auto !important;
+        margin-bottom: 0 !important;
+        white-space: normal !important; /* Permite que el texto baje de línea */
+    }
+
+    /* 3. Ajuste del Título Especial */
+    .event-card.special h3 {
+        margin-top: 0 !important;
+        font-size: 1.3rem !important;
+        white-space: normal !important; /* Que no se corte si es largo */
+    }
+
+    /* 4. Link de Instagram (Amarillo) */
+    .special-links {
+        margin-top: 0 !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* --- ANIMACIÓN HOVER CARDS EVENTOS --- */
+@media (min-width: 901px) { /* Solo en desktop */
+    .event-card {
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+    }
+
+    .event-card:hover {
+        transform: translateY(-10px) scale(1.02); /* Sube y crece un pelín */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Sombra profunda */
+        z-index: 2; /* Se pone por encima de todo */
+        border: 1px solid rgba(255, 255, 255, 0.1); /* Borde sutil brillante */
+    }
+
+    /* Efecto brillo en la imagen */
+    .event-card:hover .card-image img {
+        filter: brightness(1.1);
+        transform: scale(1.05); /* Zoom interno en la foto */
+        transition: transform 0.5s ease, filter 0.3s ease;
+    }
+}
+
+/* --- NOTIFICACIONES PUSH & TROMPETITA (CORREGIDO) --- */
+
+/* 1. La Caja de Notificación */
+.push-notification {
+    position: fixed;
+    top: 100px; /* Debajo del navbar */
+    right: -400px; /* Oculto fuera */
+    width: 320px;
+    background: rgba(15, 15, 15, 0.98);
+    border-left: 4px solid var(--color-primario-rojo);
+    border-radius: 4px;
+    padding: 1.5rem;
+    box-shadow: -5px 5px 20px rgba(0,0,0,0.6);
+    z-index: 9999; 
+    color: #fff;
+    transition: right 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    visibility: hidden; /* Para que no moleste cuando está fuera */
+}
+
+.push-notification.visible {
+    right: 20px; /* Margen derecho al entrar */
+    visibility: visible;
+}
+
+/* Botón de Cerrar (La X) */
+.close-push {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    right: auto;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s;
+    padding: 0;
+    z-index: 10001;
+}
+.close-push:hover { color: #fff; }
+
+/* Contenido interno */
+#push-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--color-primario-rojo);
+    font-family: 'Abril Fatface', serif; /* Tu fuente de títulos */
+    font-size: 1.2rem;
+}
+
+#push-content p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #ddd;
+    margin-bottom: 0.5rem;
+}
+
+.push-timer {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #fff;
+    margin-top: 5px;
+    display: block;
+    background: rgba(255,255,255,0.1);
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Botones dentro de la push */
+.btn-push {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 0.4rem 0.8rem;
+    background: var(--color-primario-rojo);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+.btn-push:hover { transform: scale(1.05); }
+
+
+/* 2. La "Trompetita" Flotante */
+.push-trigger {
+    position: fixed;
+    bottom: 50px;
+    right: 50px; 
+    width: 10px !important;
+    height: 10px !important;
+    background: #000;
+    border: 2px solid var(--color-primario-rojo);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 9998;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.3s, opacity 0.3s;
+    
+    /* Oculto por defecto, JS lo muestra */
+    opacity: 0; 
+    pointer-events: none;
+    transform: scale(0); 
+}
+
+.push-trigger.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.push-trigger:hover {
+    transform: scale(1.1) rotate(-10deg);
+}
+
+/* Estilo del ícono (FontAwesome) */
+.push-trigger i {
+    color: #fff;
+    font-size: 10px !important;
+}
+
+.push-trigger img {
+  height: 50px;
+  width: 50px;
+}
+
+.push-badge {
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    width: 20px;
+    height: 20px;
+    background-color: red; /* Rojo */
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid red; /* Borde blanco para separar */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    
+    /* Animación de latido para llamar la atención */
+    animation: bounceBadge 2s infinite;
+}
+
+@keyframes bounceBadge {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-3px);}
+    60% {transform: translateY(-1.5px);}
+}
+
+/* Globito rojo de aviso en la trompeta */
+.notification-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background: #FFD700; /* Dorado para que resalte sobre rojo/negro */
+    border-radius: 50%;
+    border: 2px solid #000;
+}
+
+/* --- MOBILE --- */
+@media (max-width: 768px) {
+    .push-notification {
+        width: 90%; 
+        top: auto;
+        bottom: 90px; /* Sale de abajo, encima del nav inferior si hay */
+        right: -100%;
+        left: 50%; /* Centrado trick parte 1 */
+        border-left: 4px solid var(--color-primario-rojo); /* Mantenemos borde izq */
+    }
+    
+    .push-notification.visible {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%); /* Centrado trick parte 2 */
+    }
+    
+    .push-trigger {
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+/* --- FIX FINAL: BOTÓN + CALENDARIO V3 --- */
+
+/* 1. EL BOTÓN (Resucitado) */
+.calendario-acceso {
+    display: block !important;
+    text-align: center;
+    margin: 2rem 0 4rem 0;
+}
+#btn-abrir-calendario-full {
+    display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background-color: #B71C1C;
+    color: #fff;
+    border: 1px solid #B71C1C;
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(183, 28, 28, 0.4);
+}
+#btn-abrir-calendario-full:hover {
+    background-color: #d32f2f;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(183, 28, 28, 0.6);
+}
+
+/* 2. MODAL Y CONTENEDOR */
+.modal-calendario-full {
+    display: none; position: fixed; z-index: 10000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
+    justify-content: center; align-items: center; padding: 1rem;
+}
+.modal-cal-content {
+    background: #0a0a0a; width: 100%; max-width: 1000px; height: 90vh;
+    border-radius: 15px; border: 1px solid #333;
+    display: flex; flex-direction: column; padding: 1.5rem;
+    position: relative; overflow-y: auto;
+}
+.close-cal-full {
+    position: absolute; top: 15px; right: 25px;
+    font-size: 2.5rem; color: #aaa; cursor: pointer; z-index: 20;
+}
+.close-cal-full:hover { color: #fff; }
+
+/* 3. HEADER COMPACTO */
+.cal-header {
+    display: flex; justify-content: center; align-items: center;
+    margin-bottom: 1rem;
+}
+.cal-nav-controls {
+    display: flex; align-items: center; gap: 0.5rem; /* Más pegados */
+    background: #222; padding: 0.5rem 1rem;
+    border-radius: 50px; border: 1px solid #444;
+}
+.cal-header h3 { font-size: 1.1rem; margin: 0; color: #fff; min-width: 150px; text-align: center; }
+.cal-header button {
+    background: none; border: none; color: #ccc; font-size: 1.5rem; cursor: pointer;
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+}
+.cal-header button:hover { background: #444; color: #fff; }
+
+/* 4. GRILLA Y DÍAS */
+.cal-weekdays {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    text-align: center; font-weight: bold; color: #777; margin-bottom: 0.5rem;
+}
+.cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px; flex-grow: 1; margin-bottom: 1.5rem; align-content: start;
+}
+
+/* CADA DÍA (CUADRADO) */
+.cal-day {
+    background: #111; border-radius: 6px;
+    min-height: 110px; /* Altura Desktop */
+    padding: 6px; position: relative; cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), z-index 0s;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex; flex-direction: column; justify-content: space-between;
+    overflow: hidden;
+}
+/* Efecto Ola / Hover */
+.cal-day:hover {
+    transform: scale(1.4); z-index: 100;
+    box-shadow: 0 15px 40px rgba(0,0,0,1);
+    border-color: #fff;
+}
+
+/* Contenido del día */
+.cal-day-number {
+    font-size: 1rem; font-weight: 900; z-index: 2; text-shadow: 2px 2px 4px black;
+}
+.cal-day-title {
+    font-size: 0.75rem; line-height: 1.1; color: #fff; text-align: center; z-index: 2;
+    text-shadow: 2px 2px 4px black; font-weight: bold;
+}
+/* Tooltip "Haz clic" */
+.cal-hover-hint {
+    display: none; font-size: 0.5rem; color: #FFD700; text-align: center; z-index: 2;
+    background: rgba(0,0,0,0.8); padding: 2px 4px; border-radius: 4px; margin-top: 2px;
+}
+.cal-day:hover .cal-hover-hint { display: inline-block; }
+
+/* Imagen Fondo Día */
+.cal-day-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0.5; z-index: 1;
+}
+
+/* 5. COLORES (Tu Esquema Nuevo) */
+/* Verde: Evento Disponible */
+.cal-day.status-future { background: #051a05; border-color: #2ecc71; }
+.cal-day.status-future .cal-day-number { color: #2ecc71; }
+
+/* Rojo: Cerrado */
+.cal-day.status-closed { background: #1a0505; border-color: #e74c3c; }
+.cal-day.status-closed .cal-day-number { color: #e74c3c; }
+
+/* Azul: Privado */
+.cal-day.status-private { background: #050a1a; border-color: #3498db; }
+.cal-day.status-private .cal-day-number { color: #3498db; }
+
+/* Blanco/Plateado: Sin Show */
+.cal-day.status-open { background: #1a1a1a; border-color: #bdc3c7; }
+.cal-day.status-open .cal-day-number { color: #fff; }
+
+/* Amarillo: Finalizado */
+.cal-day.status-past { background: #1a1a05; border-color: #f1c40f; opacity: 0.6; }
+.cal-day.status-past .cal-day-number { color: #f1c40f; }
+
+/* 6. BUSCADOR (Legible) */
+.cal-search-container h4 { color: #fff; margin-bottom: 0.5rem; font-size: 1.1rem; }
+.cal-search-container input {
+    width: 100%; padding: 12px; 
+    background: #fff; /* Fondo blanco */
+    color: #000; /* Texto negro */
+    border: none; border-radius: 6px;
+    font-size: 1rem; margin-bottom: 1rem;
+}
+.cal-search-results {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 200px; overflow-y: auto;
+}
+.mini-card-result {
+    background: #222; padding: 10px; display: flex; gap: 15px; align-items: center;
+    border-radius: 6px; border: 1px solid #444; cursor: pointer; transition: 0.2s;
+}
+.mini-card-result:hover { background: #333; border-color: #fff; }
+.mini-card-result img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+
+/* 7. MODAL DETALLE (Centro) */
+.modal-detalle-centro {
+    display: none; position: fixed; z-index: 12000; left: 0; top: 0;
+    width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);
+    justify-content: center; align-items: center; backdrop-filter: blur(10px);
+}
+.detalle-card-content {
+    position: relative; width: 95%; max-width: 450px;
+}
+.close-detalle {
+    position: absolute; top: -50px; right: 0; font-size: 3rem; color: #fff; cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    #btn-abrir-calendario-full { width: 90%; padding: 15px 0; }
+    .modal-cal-content { padding: 10px; height: 95vh; }
+    .cal-day { min-height: 60px; padding: 3px; } /* Más bajos para que entren */
+    .cal-day:hover { transform: none; z-index: 1; box-shadow: none; } /* Sin ola en móvil */
+    .cal-day-number { font-size: 0.8rem; }
+    .cal-day-title { font-size: 0.55rem; }
+    .cal-weekdays div { font-size: 0.8rem; }
+}
+
+/* --- FIX FINAL CALENDARIO (Transparencia y Bordes) --- */
+
+/* 1. FIX TRANSPARENCIA (Eventos Pasados) */
+/* Quitamos la opacidad del contenedor para que sea SÓLIDO */
+.cal-day.status-past {
+    opacity: 1 !important; 
+    background-color: #111 !important; /* Fondo negro sólido */
+    border: 1px solid #333;
+}
+
+/* Aplicamos el efecto "apagado" SOLO a la imagen y al texto, no al fondo */
+.cal-day.status-past .cal-day-bg {
+    opacity: 0.2 !important; /* Imagen muy oscura */
+    filter: grayscale(100%) !important; /* Blanco y negro */
+}
+.cal-day.status-past .cal-day-number,
+.cal-day.status-past .cal-day-title {
+    color: #666 !important; /* Texto gris apagado */
+}
+
+/* Al pasar el mouse sobre un pasado, recuperamos un poco de vida */
+.cal-day.status-past:hover {
+    background-color: #1a1a1a !important; /* Fondo sólido un poco más claro */
+    border-color: #f1c40f !important;
+    z-index: 100;
+}
+.cal-day.status-past:hover .cal-day-bg {
+    opacity: 0.4 !important; /* Se ve un poco más */
+}
+
+/* 2. FIX ANCHO Y SCROLL (Desktop) */
+@media (min-width: 901px) {
+    /* Agrandamos el modal para dar más aire */
+    .modal-cal-content {
+        max-width: 1200px !important; 
+        overflow-x: hidden !important; /* Prohibido scroll horizontal */
+        padding: 2rem !important; /* Más margen interno */
+    }
+
+    /* INTELIGENCIA DE BORDES (Para que no se salgan de la pantalla) */
+    
+    /* Si es el 1er día de la fila (Domingo/Columna 1), crece hacia la derecha */
+    .cal-grid .cal-day:nth-child(7n+1) {
+        transform-origin: left center !important;
+    }
+
+    /* Si es el último día de la fila (Sábado/Columna 7), crece hacia la izquierda */
+    .cal-grid .cal-day:nth-child(7n) {
+        transform-origin: right center !important;
+    }
+    
+    /* El resto crece desde el centro (default) */
+}
+
+/* 3. Asegurar fondo sólido en TODOS los hovers (para que no se vean las rayas de atrás) */
+.cal-day:hover {
+    background-color: #0a0a0a !important; /* Fondo negro profundo sólido */
+    /* La imagen de fondo tapa el color, pero esto asegura que no sea transparente */
+}
+
+/* --- FIX HOVER EVENTOS PASADOS (Color sutil) --- */
+
+.cal-day.status-past:hover .cal-day-bg {
+    /* 1. Recuperar el color (quitamos el blanco y negro) */
+    filter: grayscale(0%) !important; 
+    
+    /* 2. Mantener transparencia (para que se fusione con el fondo negro) */
+    /* Puedes subir a 0.6 o 0.7 si la quieres más brillante */
+    opacity: 0.5 !important; 
+}
+
+/* --- MODAL DE VIDEO (CINE) --- */
+
+.modal-video-player {
+    display: none;
+    position: fixed;
+    z-index: 15000; /* El más alto de todos */
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.95);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    padding: 1rem;
+}
+
+.video-content-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+.close-video {
+    position: absolute;
+    top: -40px; /* Fuera del cuadro en desktop */
+    right: 0;
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* El truco del 16:9 Responsive */
+.video-frame-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    background: #000;
+}
+
+.video-frame-container iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+}
+
+/* Footer del video */
+.video-info-footer {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111;
+    border-top: 1px solid #333;
+}
+
+.video-info-footer h4 {
+    color: #fff; margin: 0; font-size: 1.1rem;
+}
+
+.btn-youtube-external {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: bold;
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.9rem;
+}
+.btn-youtube-external:hover { color: #fff; }
+
+/* Chat Container */
+.youtube-chat-container {
+    height: 400px; /* Altura fija si se muestra */
+    background: #fff;
+    border-top: 1px solid #333;
+}
+.youtube-chat-container iframe {
+    width: 100%; height: 100%; border: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .close-video {
+        top: 5px; right: 10px; /* Dentro del cuadro en móvil */
+        text-shadow: 0 0 5px black;
+    }
+    .video-info-footer {
+        flex-direction: column; gap: 10px; text-align: center;
+    }
+    .youtube-chat-container {
+        height: 300px; /* Menos altura en móvil */
+    }
+}
+
+/* --- NOTIFICACIONES PUSH APILABLES --- */
+#notificaciones-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 320px;
+    z-index: 99999; /* Por encima de todo */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Permite clic a través de lo transparente */
+}
+
+.notificacion-push {
+    pointer-events: auto; /* Reactiva el clic en la tarjeta */
+    position: relative; /* Ya no fixed, para respetar el flex del padre */
+    right: auto;
+    top: auto;
+    margin-left: auto;
+    /* Mantenemos tus estilos visuales existentes... */
+    background: rgba(18, 18, 18, 0.95);
+    border-left: 4px solid #B71C1C;
+    padding: 15px;
+    border-radius: 4px;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transform: translateX(120%);
+    transition: transform 0.5s ease-out;
+}
+
+.notificacion-push.entra {
+    transform: translateX(0);
+}
+
+/* ======================================================
+   NUEVAS REGLAS UX/UI: CARDS FIJAS Y MODAL EXPANDIBLE 
+   ====================================================== */
+
+/* 1. FIJAMOS EL TAMAÑO DE LAS CARDS EN EL CARRUSEL */
+.carousel-track .event-card {
+    height: 420px !important; /* Altura Fija e inamovible */
+    min-height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    cursor: pointer; /* Manito para indicar que se abre */
+}
+
+.carousel-track .card-image {
+    height: 200px !important; /* Imagen fija */
+    flex-shrink: 0 !important;
+}
+
+.carousel-track .card-content {
+    height: 220px !important; /* Resto de la caja fijo */
+    padding: 1rem 1rem 75px 1rem !important;
+    position: relative !important;
+}
+
+/* Magia: Truncamos el texto GLOBALMENTE en el carrusel (no solo en móvil) */
+.carousel-track .card-content p {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important; 
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin-bottom: 0 !important;
+}
+
+/* 2. COMPORTAMIENTO DE LAS CARDS DENTRO DEL MODAL POP-UP */
+/* Acá queremos lo contrario: que la card se estire lo que necesite mostrar */
+.modal-detalle-centro .event-card {
+    height: auto !important; 
+    min-height: auto !important;
+    margin-bottom: 15px; /* Separación si hay varias bandas el mismo día */
+    cursor: default; /* Ya está abierta, no es clickeable */
+    transform: none !important; /* Quitamos el hover raro dentro del modal */
+}
+
+.modal-detalle-centro .card-image {
+    height: 250px !important; /* Foto un poco más grande para lucirse */
+}
+
+.modal-detalle-centro .card-content {
+    height: auto !important; /* Que el texto empuje la caja hacia abajo */
+    padding-bottom: 85px !important; /* Espacio para los botones */
+}
+
+.modal-detalle-centro .card-content p {
+    display: block !important;
+    -webkit-line-clamp: unset !important; /* Anulamos el recorte de líneas */
+    overflow: visible !important;
+    white-space: normal !important;
+}
+
+/* 3. ESTILO DEL CONTENEDOR DEL MODAL Y SCROLL INTERNO */
+.detalle-card-content {
+    position: relative; 
+    width: 95%; 
+    max-width: 500px;
+    max-height: 85vh; /* Si es muy largo, tope al 85% de la pantalla */
+    overflow-y: auto; /* Habilita el scroll interno */
+    background: #000; 
+    border-radius: 10px;
+    border: 1px solid #333;
+    padding: 10px;
+    
+    /* Scrollbar elegante */
+    scrollbar-width: thin;
+    scrollbar-color: #B71C1C #111;
+}
+
+.detalle-card-content::-webkit-scrollbar { width: 8px; }
+.detalle-card-content::-webkit-scrollbar-track { background: #111; border-radius: 10px; }
+.detalle-card-content::-webkit-scrollbar-thumb { background: #B71C1C; border-radius: 10px; }
+
+/* Movemos la cruz para que no estorbe con el scroll */
+.close-detalle {
+    position: absolute; 
+    top: 5px; 
+    right: 15px; 
+    font-size: 2.5rem; 
+    color: #fff; 
+    cursor: pointer;
+    z-index: 50;
+    text-shadow: 0 2px 5px #000;
+}
+
+/* --- FIX PROPORCIONES DE IMAGEN EN IPAD Y MÓVILES --- */
+@media (max-width: 900px) {
+    /* Hacemos la card más alta en general */
+    .carousel-track .event-card {
+        height: 520px !important; 
+    }
+    
+    /* Le damos 100 píxeles más de pura foto para que no quede achatada */
+    .carousel-track .card-image {
+        height: 300px !important; 
+    }
+    
+    /* Mantenemos el mismo espacio para el texto y los botones */
+    .carousel-track .card-content {
+        height: 220px !important; 
+    }
+}
+
+/* --- FIX TOTAL UX/UI: LA X COMO ENLACE <a> (CIRCULO ROJO) --- */
+#btn-close-push.close-push {
+    
+    /* 1. Resetear estilos base del enlace para que no parezca un link azul subrayado */
+    text-decoration: none !important;
+    display: flex !important; /* Para centrar la X interna */
+    justify-content: center !important;
+    align-items: center !important;
+    
+    /* 2. Posicionamiento: Esquina Superior Derecha */
+    position: absolute !important;
+    top: -12px !important; /* Sacado un poquito más por arriba */
+    right: -12px !important; /* Sacado un poquito más por la derecha */
+    left: auto !important; /* Anulamos cualquier left viejo */
+    
+    /* 3. El Círculo Rojo (Grande y fácil de tocar) */
+    width: 34px !important; /* Un pelín más grande aún */
+    height: 34px !important;
+    background-color: #B71C1C !important; /* Fondo rojo sólido */
+    border: 2px solid #111 !important; /* Borde oscuro para despegarlo */
+    border-radius: 50% !important; /* 100% Redondito */
+    
+    /* 4. La X interna */
+    color: #fff !important;
+    font-family: Arial, sans-serif !important; /* Fuente segura para la X */
+    font-size: 1.4rem !important; /* X más grande y visible */
+    font-weight: bold !important;
+    line-height: 1 !important; /* Importante para el centrado vertical */
+    
+    /* 5. Interacción y Sombras */
+    cursor: pointer !important;
+    z-index: 10001 !important; /* Por encima de todo */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+/* Estado Hover (Al pasar el mouse en desktop) */
+#btn-close-push.close-push:hover {
+    background-color: #ff0000 !important; /* Rojo brillante */
+    transform: scale(1.1) rotate(5deg) !important; /* Crece un poquito */
+}
