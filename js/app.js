@@ -1,24 +1,121 @@
 /**
- * Carga los datos de la CARTA desde la API.
+ * Carga los datos de la CARTA desde el LocalStorage (Demo Sandbox).
  * @param {string} lang - El idioma a cargar ('es' o 'en').
- * @returns {Promise<object | null>} Los datos del JSON o null si hay error.
+ * @returns {Promise<object | null>} Los datos procesados o null si hay error.
  */
 async function cargarDatos(lang) {
-    // CAMBIO: Ya no leemos un archivo, llamamos a nuestra API.
-    const apiUrl = '/api/productos'; 
     try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error(`Error al cargar la API de productos: ${response.statusText}`);
-        }
-        
-        // La API ya nos da los dos idiomas, seleccionamos el que queremos.
-        const data = await response.json();
-        return data[lang]; // Devolvemos solo 'es' o 'en'
+        console.log("Simulando carga de la carta de bebidas...");
+        // Simulamos el "viaje" al servidor usando la función de nuestro motor
+        if (typeof simularLatencia === 'function') await simularLatencia(1000);
+
+        // Traemos los datos crudos de nuestra base de datos local
+        const db = JSON.parse(localStorage.getItem('liminal_db'));
+        const cartaLocal = db.carta || []; 
+
+        // 1. ADAPTADOR DE PRODUCTOS
+        // Convertimos los datos guardados en el panel al formato que espera tu renderizador
+        const productosProcesados = cartaLocal.map(p => {
+            return {
+                id: p.id || p._id,
+                tipo: p.tipo || 'coctel',
+                visualizacion: p.visible !== false && p.visualizacion !== false,
+                titulo: lang === 'en' ? (p.nombre_en || p.nombre_es) : (p.nombre_es || p.nombre_en),
+                descripcion: lang === 'en' ? (p.descripcion_en || p.descripcion_es) : (p.descripcion_es || p.descripcion_en),
+                
+                // PRECIOS: Mapeamos exacto como lo guarda el Dashboard
+                precioCopa: p.precioCopa || parseFloat(p.precio) || null,
+                precioBotella: p.precioBotella || null,
+                precioCana: p.precioCana || null,
+                precioPinta: p.precioPinta || null,
+                
+                // LOGICA VISUAL: Respetamos tanto el toggle de cocteles como el de vinos
+                mostrarImagen: p.mostrarImagen === true, 
+                destacado: p.destacado === true,
+                
+                // OTROS DATOS
+                region: lang === 'en' ? (p.region_en || p.region) : p.region,
+                pais: lang === 'en' ? (p.pais_en || p.pais) : p.pais,
+                varietal: lang === 'en' ? (p.varietal_en || p.varietal) : p.varietal,
+                crianza: lang === 'en' ? (p.crianza_en || p.crianza) : p.crianza,
+                abv: p.abv || null,
+                ibu: p.ibu || null,
+                productor: p.productor || null,
+                ano: p.ano || null,
+                
+                // IMAGEN: Si está vacía, usamos el default
+                imagen: p.imagen && p.imagen.trim() !== "" ? p.imagen : 'bebidaSinFoto.jpg'
+            };
+        });
+
+        // 2. MOLDE DE TEXTOS DE LA INTERFAZ (UI)
+        // Recreamos el objeto gigante que antes te mandaba el backend
+        const fullData = {
+            es: {
+                textosUI: {
+                    lang: 'es',
+                    langButton: 'ENG',
+                    navbar: [
+                        { id: 'cocteles', texto: 'Cócteles' },
+                        { id: 'cervezas', texto: 'Cervezas' },
+                        { id: 'vinos', texto: 'Vinos' },
+                        { id: 'destilados', texto: 'Destilados' },
+                        { id: 'sinAlcohol', texto: 'Sin Alcohol' }
+                    ],
+                    titulosSeccion: {
+                        cocteles: 'CÓCTELES DE AUTOR', cervezas: 'CERVEZAS', vinos: 'VINOS',
+                        destilados: 'DESTILADOS', sinAlcohol: 'SIN ALCOHOL'
+                    },
+                    subtitulos: {
+                        cervezaBarril: 'De Barril', cervezaEnvasada: 'Envasadas',
+                        vinosDestacados: 'Destacados de la Semana', vinosTintos: 'Tintos',
+                        vinosBlancos: 'Blancos', vinosOtros: 'Espumantes y Rosados'
+                    },
+                    etiquetasPrecio: {
+                        copa: 'Copa', botella: 'Botella', cana: 'Caña', pinta: 'Pinta', chupito: 'Chupito', vasoDestilado: 'Vaso'
+                    },
+                    etiquetasVino: {
+                        bodega: 'Bodega', varietal: 'Varietal', ano: 'Año', crianza: 'Crianza'
+                    }
+                },
+                productos: productosProcesados
+            },
+            en: {
+                textosUI: {
+                    lang: 'en',
+                    langButton: 'ESP',
+                    navbar: [
+                        { id: 'cocteles', texto: 'Cocktails' },
+                        { id: 'cervezas', texto: 'Beers' },
+                        { id: 'vinos', texto: 'Wines' },
+                        { id: 'destilados', texto: 'Spirits' },
+                        { id: 'sinAlcohol', texto: 'Alcohol Free' }
+                    ],
+                    titulosSeccion: {
+                        cocteles: 'SIGNATURE COCKTAILS', cervezas: 'BEERS', vinos: 'WINES',
+                        destilados: 'SPIRITS', sinAlcohol: 'ALCOHOL FREE'
+                    },
+                    subtitulos: {
+                        cervezaBarril: 'Draft', cervezaEnvasada: 'Bottled',
+                        vinosDestacados: 'Weekly Highlights', vinosTintos: 'Red Wines',
+                        vinosBlancos: 'White Wines', vinosOtros: 'Sparkling & Rosé'
+                    },
+                    etiquetasPrecio: {
+                        copa: 'Glass', botella: 'Bottle', cana: 'Half Pint', pinta: 'Pint', chupito: 'Shot', vasoDestilado: 'Glass'
+                    },
+                    etiquetasVino: {
+                        bodega: 'Winery', varietal: 'Grape', ano: 'Year', crianza: 'Aging'
+                    }
+                },
+                productos: productosProcesados
+            }
+        };
+
+        return fullData[lang];
 
     } catch (error) {
-        console.error(error);
-        return null; // Devuelve null en caso de error
+        console.error("Fallo crítico leyendo la carta local:", error);
+        return null;
     }
 }
 
@@ -56,7 +153,7 @@ function renderizarNavbar(textosUI) {
     const htmlNavbar = `
         <div class="navbar-content">
             <div class="nav-logo">
-                <a href="index.html"><img src="img/altxerrilogo2.png" alt="Altxerri Logo"></a>
+                <a href="index.html"><img src="img/liminal_logo.png" alt="Liminal Logo"></a>
             </div>
 
             <nav class="nav-desktop">
@@ -267,9 +364,12 @@ function renderizarSeccionCocteles(productos, textosUI) {
  * HELPER 1: Crea el renglón expandido con foto (Estilo Card Apilada)
  */
 function createCoctelExpandedRow(prod, flexDirection) {
+// Lógica para aceptar Base64 o fotos locales
     let imgSrc = 'img/bebidaSinFoto.jpg';
     if (prod.imagen) {
-         imgSrc = prod.imagen.startsWith('http') ? prod.imagen : `img/${prod.imagen}`;
+        imgSrc = (prod.imagen.startsWith('http') || prod.imagen.startsWith('data:image')) 
+                ? prod.imagen 
+                : `img/${prod.imagen}`;
     }
     
     const precio = formatarPrecio(prod.precioCopa);
@@ -278,10 +378,10 @@ function createCoctelExpandedRow(prod, flexDirection) {
     // flexDirection viene como 'row' (img izquierda) o 'row-reverse' (img derecha)
     const layoutClass = (flexDirection === 'row') ? 'layout-img-texto' : 'layout-texto-img';
 
-    return `
+return `
     <div class="coctel-row-con-foto ${layoutClass}">
-        <div class="coctel-img-container">
-            <img src="${imgSrc}" alt="${prod.titulo}" loading="lazy">
+        <div class="coctel-img-container" style="position: relative; overflow: hidden;">
+            <div style="width: 100%; height: 100%; background-image: url('${imgSrc}'); background-size: cover; background-position: center;"></div>
         </div>
         <div class="coctel-info">
             <div class="coctel-header">
@@ -576,11 +676,11 @@ function renderizarVinosDestacados(productos, textosUI) {
         const esPar = index % 2 === 0;
         const claseLayout = esPar ? 'layout-img-texto' : 'layout-texto-img';
         
-        let rutaImagen = `img/${vino.imagen}`;
-        if (vino.imagen && (vino.imagen.startsWith('http') || vino.imagen.startsWith('https'))) {
-            rutaImagen = vino.imagen; // URL de Cloudinary
-        } else {
-            rutaImagen = `img/${vino.imagen || 'bebidaSinFoto.jpg'}`; // Archivo local
+        let rutaImagen = 'img/bebidaSinFoto.jpg';
+        if (vino.imagen) {
+            rutaImagen = (vino.imagen.startsWith('http') || vino.imagen.startsWith('data:image')) 
+                        ? vino.imagen 
+                        : `img/${vino.imagen}`;
         }
         
         // Formateo de datos del vino (igual que en el listado)
@@ -595,9 +695,15 @@ function renderizarVinosDestacados(productos, textosUI) {
             ? `${[vino.region, vino.pais].filter(Boolean).join(' – ')}` 
             : '';
 
+        // Calculamos hacia dónde va el degradado según de qué lado esté la foto
+        const direccionDegradado = esPar ? 'to right' : 'to left';
+        // Usamos un color oscuro estándar para el fondo que se funde (ajustá el #121212 si tu fondo es distinto)
+        const degradadoCSS = `linear-gradient(${direccionDegradado}, transparent 40%, #121212 95%)`;
+
         return `
             <div class="banner-destacado ${claseLayout}">
-                <div class="banner-imagen" style="background-image: url('${rutaImagen}');">
+                <div class="banner-imagen" style="position: relative; background-image: url('${rutaImagen}'); background-size: cover; background-position: center;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: ${degradadoCSS};"></div>
                 </div>
                 <div class="banner-textos">
                     <h4 class="banner-titulo">${vino.titulo}</h4>
@@ -767,7 +873,7 @@ async function descargarPDF() {
         
         // 5. Descargar
         const fecha = new Date().toISOString().slice(0,10);
-        pdf.save(`Altxerri_Menu_${fecha}.pdf`);
+        pdf.save(`Liminal_Menu_${fecha}.pdf`);
 
     } catch (err) {
         console.error("Error al generar PDF:", err);

@@ -42,16 +42,52 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function cargarContenidoDesdeAPI() {
     try {
-        const response = await fetch('/api/contenido/home');
-        if (!response.ok) throw new Error('Error al cargar contenido');
-        const data = await response.json();
+        console.log("Simulando conexión con el servidor...");
+        await simularLatencia(1000); // Simulamos la carga inicial
         
-        contenidoWeb.es = data.es;
-        contenidoWeb.en = data.en;
-        
-        console.log("Textos cargados:", contenidoWeb);
+        const db = JSON.parse(localStorage.getItem('liminal_db'));
+        const t_es = (db.textosWeb && db.textosWeb.es) ? db.textosWeb.es : {};
+        const t_en = (db.textosWeb && db.textosWeb.en) ? db.textosWeb.en : {};
+        const imagenesCarrusel = (db.galeria && db.galeria.imagenes) ? db.galeria.imagenes : ["imgBandaGenerica.jpg"];
+
+        // Armamos el objeto gigante que tu código espera, inyectando los datos de la Demo
+        contenidoWeb = {
+            es: {
+                navbar: { items: [{link: "#historia", texto: "Historia"}, {link: "carta.html", texto: "Carta"}, {link: "#eventos", texto: "Shows"}, {link: "#contacto", texto: "Contacto"}], btnExtra: "Newsletter" },
+                hero: { titulo: t_es.hero_titulo || "LIMINAL BAR", subtitulo: t_es.hero_subtitulo || "Underground Soul" },
+                historia: { titulo: t_es.historia_titulo || "NUESTRA HISTORIA", texto: t_es.historia_texto || "Un refugio para los amantes del buen jazz." },
+                galeria: { titulo: "GALERÍA", subtitulo: "Momentos Liminal", imagenes: imagenesCarrusel }, 
+                parallax: { titulo: t_es.parallax_titulo || "ENTERATE DE LOS SHOWS SECRETOS", btnTexto: "SUSCRIBIRSE" },
+                eventos: { titulo: "AGENDA DE SHOWS", ui: { labelCerrado: "Cerrado", labelPrivado: "Evento Privado", txtCerrado: "Hoy descansamos.", txtPrivado: "Solo con invitación.", txtEspecial: "Sigue el ambiente en:", btnVivo: "Ver en Vivo", btnArchivo: "Reviví el concierto" } },
+                contacto: { titulo: "CONTACTO", pestanas: { cliente: "Cliente", banda: "Banda", comercial: "Privado", prensa: "Prensa" }, formularios: {
+                    cliente: { phNombre: "Nombre", phMail: "Email", phAsunto: "Asunto", phMensaje: "Mensaje", btnEnviar: "Enviar" },
+                    banda: { phNombreBanda: "Banda", phContacto: "Contacto", phMail: "Email", phMaterial: "Link Material", phMensaje: "Mensaje", btnEnviar: "Enviar" },
+                    comercial: { phEmpresa: "Empresa", phContacto: "Contacto", phMail: "Email", phTipo: "Tipo", phMensaje: "Mensaje", btnEnviar: "Enviar" },
+                    prensa: { phMedio: "Medio", phContacto: "Contacto", phMail: "Email", phMotivo: "Motivo", phMensaje: "Mensaje", btnEnviar: "Enviar" }
+                }},
+                ubicacion: { titulo: t_es.ubicacion_titulo || "CÓMO LLEGAR", subtitulo: t_es.ubicacion_subtitulo || "Carrer de la Marina, 268", texto: t_es.ubicacion_texto || "Abierto de Jueves a Domingos." },
+                newsletter: { titulo: t_es.news_titulo || "NEWSLETTER", subtitulo: t_es.news_subtitulo || "Recibí la agenda y beneficios exclusivos", phNombre: "Tu Nombre", phMail: "Tu Email", btnSuscribir: "SUSCRIBIRME" }
+            },
+            en: {
+                navbar: { items: [{link: "#historia", texto: "History"}, {link: "carta.html", texto: "Menu"}, {link: "#eventos", texto: "Shows"}, {link: "#contacto", texto: "Contact"}], btnExtra: "Newsletter" },
+                hero: { titulo: t_en.hero_titulo || "LIMINAL BAR", subtitulo: t_en.hero_subtitulo || "Underground Soul" },
+                historia: { titulo: t_en.historia_titulo || "OUR HISTORY", texto: t_en.historia_texto || "A haven for lovers of good jazz." },
+                galeria: { titulo: "GALLERY", subtitulo: "Liminal Moments", imagenes: imagenesCarrusel },
+                parallax: { titulo: t_en.parallax_titulo || "FIND OUT ABOUT SECRET SHOWS", btnTexto: "SUBSCRIBE" },
+                eventos: { titulo: "SHOWS SCHEDULE", ui: { labelCerrado: "Closed", labelPrivado: "Private Event", txtCerrado: "Resting today.", txtPrivado: "Invite only.", txtEspecial: "Follow the vibe at:", btnVivo: "Watch Live", btnArchivo: "Relive the concert" } },
+                contacto: { titulo: "CONTACT", pestanas: { cliente: "Customer", banda: "Band", comercial: "Private", prensa: "Press" }, formularios: {
+                    cliente: { phNombre: "Name", phMail: "Email", phAsunto: "Subject", phMensaje: "Message", btnEnviar: "Send" },
+                    banda: { phNombreBanda: "Band", phContacto: "Contact", phMail: "Email", phMaterial: "Link Material", phMensaje: "Message", btnEnviar: "Send" },
+                    comercial: { phEmpresa: "Company", phContacto: "Contact", phMail: "Email", phTipo: "Type", phMensaje: "Message", btnEnviar: "Send" },
+                    prensa: { phMedio: "Media", phContacto: "Contact", phMail: "Email", phMotivo: "Reason", phMensaje: "Message", btnEnviar: "Send" }
+                }},
+                ubicacion: { titulo: t_en.ubicacion_titulo || "LOCATION", subtitulo: t_en.ubicacion_subtitulo || "Carrer de la Marina, 268", texto: t_en.ubicacion_texto || "Open Thursday to Sunday." },
+                newsletter: { titulo: t_en.news_titulo || "NEWSLETTER", subtitulo: t_en.news_subtitulo || "Get the schedule and exclusive benefits", phNombre: "Your Name", phMail: "Your Email", btnSuscribir: "SUBSCRIBE" }
+            }
+        };
+        console.log("Textos locales cargados.");
     } catch (error) {
-        console.error("Fallo crítico cargando textos:", error);
+        console.error("Fallo crítico cargando textos de la DB local:", error);
     }
 }
 
@@ -323,57 +359,43 @@ const HORA_CADUCIDAD_LIVE = 3;
 let cards = [];
 let activeIndex = 0;
 
-function cargarEventos() {
+async function cargarEventos() {
     const preloader = document.getElementById('preloader');
     
-    fetch("/api/eventos")
-        .then(res => {
-            if (!res.ok) throw new Error('Error API eventos');
-            return res.json();
-        })
-        .then(data => {
-            eventos = data;
-            eventos.sort((a, b) => a.fecha.localeCompare(b.fecha));
-            
-            inicializarEventos();
-            inicializarCalendario();
-            
-            // --- FIX RETRASO PUSH ---
-            // Apenas tenemos datos, calculamos la notificación
-            if (typeof evaluarEstadoPush === 'function') {
-                evaluarEstadoPush();
+    try {
+        await simularLatencia(1500); // Mantenemos el spinner para dar efecto "pro"
+        
+        const db = JSON.parse(localStorage.getItem('liminal_db'));
+        eventos = db.eventos || [];
+        eventos.sort((a, b) => a.fecha.localeCompare(b.fecha));
+        
+        inicializarEventos();
+        inicializarCalendario();
+        
+        if (typeof evaluarEstadoPush === 'function') {
+            evaluarEstadoPush();
+        }
+        
+        // Deep linking del newsletter (lo mantenemos por si lo probás)
+        const urlParams = new URLSearchParams(window.location.search);
+        const fechaDesdeMail = urlParams.get('evento');
+        
+        if (fechaDesdeMail && eventos && eventos.length > 0) {
+            const eventosDelDia = eventos.filter(ev => ev.fecha === fechaDesdeMail);
+            if (eventosDelDia.length > 0) {
+                setTimeout(() => abrirDetalleCentro(eventosDelDia), 800);
+                window.history.replaceState({}, document.title, window.location.pathname + "#eventos");
             }
-            // ------------------------
-            
-            // --- MAGIA DEL NEWSLETTER (DEEP LINKING) ---
-            // Chequeamos si el usuario viene desde un click del correo
-            const urlParams = new URLSearchParams(window.location.search);
-            const fechaDesdeMail = urlParams.get('evento');
-            
-            if (fechaDesdeMail && eventos && eventos.length > 0) {
-                // Buscamos si hay eventos para esa fecha
-                const eventosDelDia = eventos.filter(ev => ev.fecha === fechaDesdeMail);
-                
-                if (eventosDelDia.length > 0) {
-                    // Le damos 800 milisegundos para que la página termine de acomodarse
-                    // y disparamos el popup en toda la pantalla.
-                    setTimeout(() => {
-                        abrirDetalleCentro(eventosDelDia);
-                    }, 800);
-                    
-                    // Limpiamos la URL para que quede prolija (opcional)
-                    window.history.replaceState({}, document.title, window.location.pathname + "#eventos");
-                }
-            }
-            // ------------------------------------------
+        }
+        
+        // APAGAMOS EL LOGO QUE DA VUELTAS
+        if (preloader) preloader.classList.add('preloader-hidden');
 
-            if (preloader) preloader.classList.add('preloader-hidden');
-        })
-        .catch(error => {
-            console.error(error);
-            if (track) track.innerHTML = "<p style='color:white;text-align:center;'>Error cargando eventos.</p>";
-            if (preloader) preloader.classList.add('preloader-hidden');
-        });
+    } catch (error) {
+        console.error("Error cargando eventos locales:", error);
+        if (track) track.innerHTML = "<p style='color:white;text-align:center;'>Error cargando agenda.</p>";
+        if (preloader) preloader.classList.add('preloader-hidden'); // Si hay error, lo apagamos igual
+    }
 }
 
 // ======================================================
@@ -425,7 +447,7 @@ function createEventCard(evento) {
                     <h3>${specialTitle}</h3>
                     <p>${specialTextProcessed}</p>
                     <div class="special-links">
-                        ${txtSigueAmbiente} <a href="https://instagram.com/altxerribar" target="_blank">Instagram</a>
+                        ${txtSigueAmbiente} <a href="https://instagram.com/astor.apps" target="_blank">Instagram</a>
                     </div>
                 </div>
             </div>
@@ -433,13 +455,12 @@ function createEventCard(evento) {
     }
     
     // 3. LÓGICA DE EVENTOS REGULARES
-    const rawTitulo = (idiomaActual === 'en' && evento.titulo_en) ? evento.titulo_en : evento.titulo;
-    // --- MAGIA NUEVA: SOPORTE PARA ENTER EN TÍTULO ---
-    const tituloMostrar = rawTitulo.replace(/\n/g, '<br>'); // También para títulos
+// Le agregamos un salvavidas (|| '') para que si no encuentra el texto, no explote
+    const rawTitulo = (idiomaActual === 'en' && evento.titulo_en) ? evento.titulo_en : (evento.titulo || evento.titulo_es || "Show en Liminal");
+    const tituloMostrar = String(rawTitulo).replace(/\n/g, '<br>');
 
-    const rawDesc = (idiomaActual === 'en' && evento.descripcion_en) ? evento.descripcion_en : evento.descripcion;
-    // --- MAGIA NUEVA: SOPORTE PARA ENTER EN DESCRIPCIÓN ---
-    const descProcessed = rawDesc ? rawDesc.replace(/\n/g, '<br>') : '';
+    const rawDesc = (idiomaActual === 'en' && evento.descripcion_en) ? evento.descripcion_en : (evento.descripcion || evento.descripcion_es || "");
+    const descProcessed = String(rawDesc).replace(/\n/g, '<br>');
 
     let botonAdicionalHTML = '';
     let descripcionHTML = '';
@@ -471,8 +492,8 @@ function createEventCard(evento) {
     const finalizadoDisabled = (esPasado && !isLiveActive) ? "disabled" : "";
     const finalizadoTextStr = (esPasado && !isLiveActive) ? txtFinalizado : txtReservar;
 
-    let imagenMostrar;
-    if (evento.imagen && (evento.imagen.startsWith('http') || evento.imagen.startsWith('https'))) {
+let imagenMostrar;
+    if (evento.imagen && (evento.imagen.startsWith('http') || evento.imagen.startsWith('https') || evento.imagen.startsWith('data:image'))) {
         imagenMostrar = evento.imagen; 
     } else {
         imagenMostrar = `img/${evento.imagen || 'imgBandaGenerica.jpg'}`; 
@@ -624,8 +645,8 @@ function renderizarGaleria(imagenes) {
     
     // 2. Generar Slides
     imagenes.forEach((imgSrc, index) => {
-        // Si no empieza con http, asumimos que está en img/
-        const ruta = imgSrc.startsWith('http') ? imgSrc : `img/${imgSrc}`;
+    // Si no empieza con http o data:image, asumimos que está en img/
+        const ruta = (imgSrc.startsWith('http') || imgSrc.startsWith('data:image')) ? imgSrc : `img/${imgSrc}`;
         
         const img = document.createElement('img');
         img.src = ruta;
@@ -809,14 +830,13 @@ window.addEventListener('click', (event) => {
 
 // Envío del formulario
 // En js/script.js
+// Envío del formulario
 if (newsletterForm) {
     newsletterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const nombreInput = document.getElementById('newsletterName');
         const emailInput = document.getElementById('newsletterEmail');
-        const nombre = nombreInput.value;
-        const email = emailInput.value;
         const btn = newsletterForm.querySelector('button');
         const txtOriginal = btn.innerText;
 
@@ -824,34 +844,31 @@ if (newsletterForm) {
         btn.innerText = "...";
 
         try {
-            const res = await fetch('/api/suscribir', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre, email })
-            });
+            // Falso envío
+            await simularLatencia(1500); 
 
-            const data = await res.json();
-            
-            if (data.success) {
-                if(formContainer) formContainer.style.display = 'none';
-                if(successMessage) successMessage.style.display = 'block';
+            if(formContainer) formContainer.style.display = 'none';
+            if(successMessage) {
+                successMessage.style.display = 'block';
+                // MENSAJE SEDUCTOR AL CLIENTE DE LA DEMO:
+                successMessage.innerHTML = `
+                    <h3>¡Suscripción simulada! 📩</h3>
+                    <p>En el sistema real, este mail se guarda en tu Base de Datos y envía automáticamente un correo de bienvenida.</p>
+                    <p style="color: #D4AF37; font-weight: bold; margin-top: 10px;">Imaginá capturar los mails de tus clientes así de fácil...</p>
+                    <button class="btn-push" id="closeNewsletterSuccessDemo" style="margin-top: 15px;">Cerrar</button>
+                `;
                 
-                // --- LA MAGIA: Le devolvemos la vida al botón ---
-                btn.disabled = false;
-                btn.innerText = txtOriginal;
-                
-                // --- LA YAPA: Vaciamos los inputs para la próxima ---
-                nombreInput.value = '';
-                emailInput.value = '';
-
-            } else {
-                alert("Error: " + data.message);
-                btn.disabled = false;
-                btn.innerText = txtOriginal;
+                document.getElementById('closeNewsletterSuccessDemo').addEventListener('click', closeNewsletter);
             }
+            
+            btn.disabled = false;
+            btn.innerText = txtOriginal;
+            
+            nombreInput.value = '';
+            emailInput.value = '';
+
         } catch (error) {
-            console.error(error);
-            alert("Error de conexión.");
+            alert("Error simulando la suscripción.");
             btn.disabled = false;
             btn.innerText = txtOriginal;
         }
@@ -887,13 +904,14 @@ function inicializarSistemaPush() {
     // 2. Loop de chequeo (Inmediato y cada 60s)
     evaluarEstadoPush(); 
     pushInterval = setInterval(async () => {
-        try {
-            const res = await fetch("/api/eventos");
-            if (res.ok) {
-                eventos = await res.json();
+try {
+            // Ya no hacemos FETCH, simplemente leemos del navegador
+            const db = JSON.parse(localStorage.getItem('liminal_db'));
+            if (db && db.eventos) {
+                eventos = db.eventos;
                 evaluarEstadoPush();
             }
-        } catch (e) { console.error("Error polling eventos:", e); }
+        } catch (e) { console.error("Error leyendo eventos para Push local:", e); }
     }, 60000);
 }
 
@@ -1290,7 +1308,13 @@ function renderizarGrillaCalendario(fecha) {
             else if (evento.tipoEvento === 'Privado') tipoVisual = 'private';
             else tipoVisual = 'future';
             
-            imgUrl = (evento.imagen && evento.imagen.length > 3) ? (evento.imagen.startsWith('http') ? evento.imagen : `img/${evento.imagen}`) : imgUrl;
+            // LA MAGIA: Ahora chequea si empieza con http O con data:image
+            if (evento.imagen && evento.imagen.length > 3) {
+                imgUrl = (evento.imagen.startsWith('http') || evento.imagen.startsWith('data:image')) 
+                            ? evento.imagen 
+                            : `img/${evento.imagen}`;
+            }
+            
             tituloEv = (idiomaActual === 'en' && evento.titulo_en) ? evento.titulo_en : evento.titulo;
             infoParaElModal = [evento];
             
@@ -1501,39 +1525,24 @@ function inicializarFormulariosContacto() {
 
     contactForms.forEach(form => {
         form.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Evitamos que la página recargue
+            e.preventDefault();
 
-            // Efecto visual de carga
             const btn = form.querySelector('button[type="submit"]');
             const txtOriginal = btn.innerText;
             btn.disabled = true;
-            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Enviando...";
-
-            // Recolectamos los datos del formulario específico
-            const formData = new FormData(form);
-            const datos = Object.fromEntries(formData.entries());
-            const tipo = form.id; // Nos dice si es 'cliente', 'banda', etc.
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Simulando...";
 
             try {
-                const res = await fetch('/api/contacto', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tipo, datos })
-                });
+                // Simulamos el viaje del mail
+                await simularLatencia(2000);
 
-                const data = await res.json();
-
-                if (data.success) {
-                    alert("¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.");
-                    form.reset(); // Vaciamos los campos
-                } else {
-                    alert("Error: " + data.message);
-                }
+                // MENSAJE SEDUCTOR 
+                alert("¡Formulario procesado con éxito! 🚀\n\n¿Viste qué rápido y fluido es? En el sistema real, este mensaje llega al instante a tu celular. Imaginate a tu equipo de reservas o eventos gestionando clientes así de fácil...");
+                
+                form.reset(); 
             } catch (error) {
-                console.error(error);
-                alert("Error de conexión. Inténtalo de nuevo más tarde.");
+                alert("Error local.");
             } finally {
-                // Restauramos el botón
                 btn.disabled = false;
                 btn.innerText = txtOriginal;
             }

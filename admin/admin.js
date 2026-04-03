@@ -120,33 +120,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('.login-form');
     const dashboardContainer = document.querySelector('.dashboard-container');
 
-    // --- LOGIN ---
+// --- LOGIN DEMO (BYPASS) ---
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault(); 
             const errorMessage = document.getElementById('login-error');
-            errorMessage.textContent = 'Verificando...';
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password }) 
-                });
-                const data = await response.json();
-                if (data.success) {
-                    localStorage.setItem('altxerri_auth', 'true');
-                    localStorage.setItem('altxerri_token', data.token);
-                    window.location.href = 'dashboard.html';
-                } else {
-                    errorMessage.textContent = data.message;
-                }
-            } catch (error) {
-                errorMessage.textContent = 'Error de conexión.';
-            }
+            const btn = loginForm.querySelector('button');
+            
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Entrando...";
+            errorMessage.textContent = '';
+
+            // Simulamos que va al servidor a chequear la contraseña
+            if (typeof simularLatencia === 'function') await simularLatencia(1000);
+            
+            // ¡Magia! Lo dejamos pasar directo en la Demo
+            localStorage.setItem('altxerri_auth', 'true');
+            window.location.href = 'dashboard.html';
         });
-    } 
+    }
     // --- DASHBOARD ---
     else if (dashboardContainer) {
         if (localStorage.getItem('altxerri_auth') !== 'true') {
@@ -160,6 +151,19 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('altxerri_token');
             window.location.href = 'index.html';
         });
+
+        // BOTÓN MÁGICO DE RESET DEMO
+        const btnReset = document.getElementById('btn-reset-demo');
+        if (btnReset) {
+            btnReset.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm("⚠️ ¿Estás seguro? Esto borrará todos los cambios que hiciste y devolverá el bar a su estado original.")) {
+                    localStorage.removeItem('liminal_db');
+                    alert("¡Demo reseteada con éxito! Recargando el sistema...");
+                    location.reload();
+                }
+            });
+        }
 
         inicializarNavegacion();
         inicializarFormularioAlta();
@@ -337,7 +341,7 @@ function inicializarFormularioAlta() {
 
     crearCalendarioAlta();
 
-    // SUBMIT EVENTO
+// SUBMIT EVENTO (VERSIÓN DEMO LOCAL)
     form.addEventListener('submit', async (e) => {
         e.preventDefault(); 
         const btn = form.querySelector('.btn-primary');
@@ -365,21 +369,21 @@ function inicializarFormularioAlta() {
             data.descripcion_en = data.descripcion;
         }
 
-        // Validaciones
+        // Validaciones básicas
         if (data.tipoEvento === 'Regular' && !data.titulo) {
             alert("Título es obligatorio."); btn.disabled = false; btn.innerHTML = "Guardar Evento"; return;
         }
         if (!data.fecha) {
             alert("Fecha es obligatoria."); btn.disabled = false; btn.innerHTML = "Guardar Evento"; return;
         }
-        if (!data.usaGenerica && data.archivoImagen && data.imgReferencia.length === 0) {
-            alert("Tags obligatorios si subes imagen."); btn.disabled = false; btn.innerHTML = "Guardar Evento"; return;
-        }
 
         try {
+            if (typeof simularLatencia === 'function') await simularLatencia(1500);
+            
             let imagenUrl;
             const urlOculta = document.getElementById('evento-imagen-url-seleccionada').value;
 
+            // Determinamos qué imagen guardar
             if (['Cerrado', 'Privado'].includes(data.tipoEvento)) {
                 imagenUrl = data.tipoEvento === 'Cerrado' ? "cerrado.jpg" : "eventoPrivado.jpg";
             } else if (data.usaGenerica) {
@@ -387,23 +391,8 @@ function inicializarFormularioAlta() {
             } else if (urlOculta) {
                 imagenUrl = urlOculta;
             } else if (data.archivoImagen) {
-                const base64 = await toBase64(data.archivoImagen);
-                const res = await fetch('/api/imagenes/subir', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-                    body: JSON.stringify({ data: base64 })
-                });
-                const json = await res.json();
-                if (!json.success) throw new Error(json.message);
-                imagenUrl = json.url;
-
-                if (data.imgReferencia.length > 0) {
-                    await fetch('/api/imagenes/guardar', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-                        body: JSON.stringify({ url: imagenUrl, tags: data.imgReferencia })
-                    });
-                }
+                // USAMOS NUESTRO COMPRESOR MÁGICO PARA NO ROMPER LA MEMORIA
+                imagenUrl = await comprimirImagenBase64(data.archivoImagen);
             } else if (modoEdicion) {
                 const original = adminEventos.find(ev => ev._id === idEventoEdicion);
                 imagenUrl = original.imagen || "imgBandaGenerica.jpg";
@@ -411,33 +400,43 @@ function inicializarFormularioAlta() {
                 imagenUrl = "imgBandaGenerica.jpg";
             }
 
-            const payload = { ...data, imagen: imagenUrl };
-            delete payload.archivoImagen; delete payload.usaGenerica;
+            // Armamos el objeto final para guardar
+            const payload = {
+                _id: modoEdicion ? idEventoEdicion : "ev_demo_" + Date.now(), // ID falso único
+                fecha: data.fecha,
+                horaInicio: data.horaInicio,
+                horaFin: data.horaFin,
+                tipoEvento: data.tipoEvento,
+                titulo: data.titulo,
+                titulo_en: data.titulo_en,
+                descripcion: data.descripcion,
+                descripcion_en: data.descripcion_en,
+                live: data.live,
+                concierto: data.concierto,
+                imagen: imagenUrl,
+                tags: data.imgReferencia
+            };
 
-            let urlAPI = modoEdicion ? `/api/eventos/modificar/${idEventoEdicion}` : '/api/eventos/crear';
-            let methodAPI = modoEdicion ? 'PUT' : 'POST';
-
-            if (!modoEdicion && adminEventos.some(ev => ev.fecha === payload.fecha)) {
-                if (!confirm("Ya existe evento en esta fecha. ¿Crear igual?")) {
-                    btn.disabled = false; btn.innerHTML = "Guardar Evento"; return;
-                }
+            // Guardamos en LocalStorage
+            const db = JSON.parse(localStorage.getItem('liminal_db'));
+            if (modoEdicion) {
+                const index = db.eventos.findIndex(ev => ev._id === idEventoEdicion);
+                if (index !== -1) db.eventos[index] = payload;
+            } else {
+                db.eventos.push(payload);
             }
+            localStorage.setItem('liminal_db', JSON.stringify(db));
 
-            const response = await fetch(urlAPI, {
-                method: methodAPI,
-                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error("Error servidor");
-            alert(modoEdicion ? "Modificado con éxito" : "Creado con éxito");
-            
+            // Mensaje de éxito
+alert(modoEdicion 
+                ? "✨ ¡Evento modificado con éxito!\n\nSi tenés la Landing Page abierta en otra pestaña, refrescala (F5) para ver los cambios." 
+                : "✨ ¡Nuevo evento publicado!\n\nSi tenés la Landing Page abierta en otra pestaña, refrescala (F5) para verlo en vivo.");
             fetchEventosData();
             resetearFormularioAlta();
 
         } catch (err) {
             console.error(err);
-            alert("Error: " + err.message);
+            alert("Error local: " + err.message);
         } finally {
             btn.disabled = false;
             btn.innerHTML = modoEdicion ? "Guardar Modificaciones" : "Guardar Evento";
@@ -586,11 +585,11 @@ function resetearFormularioAlta() {
 
 async function fetchEventosData() {
     try {
-        const res = await fetch('/api/eventos', { headers: { 'Authorization': getAuthToken() }});
-        if (!res.ok) throw new Error("Error API Eventos");
-        adminEventos = await res.json();
+        console.log("Demo: Cargando eventos locales...");
+        const db = JSON.parse(localStorage.getItem('liminal_db')) || {};
+        adminEventos = db.eventos || [];
         renderizarResultadosEventos();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Error leyendo eventos locales:", e); }
 }
 
 function inicializarPanelesBusquedaEventos() {
@@ -631,7 +630,8 @@ function renderizarResultadosEventos() {
     const htmlSafe = (ev, action) => {
         let img = `<div style="width:80px;height:80px;background:#555;display:flex;align-items:center;justify-content:center;">Sin</div>`;
         if(ev.imagen && ev.imagen.length > 3) {
-            const src = ev.imagen.startsWith('http') ? ev.imagen : `../img/${ev.imagen}`;
+            // Si es http o data:image, la usamos directo. Si no, le agregamos ../img/
+            const src = (ev.imagen.startsWith('http') || ev.imagen.startsWith('data:image')) ? ev.imagen : `../img/${ev.imagen}`;
             img = `<img src="${src}" style="width:80px;height:80px;object-fit:cover;border-radius:5px;">`;
         }
         
@@ -744,12 +744,18 @@ async function eliminarEvento(ev, btn) {
     btn.disabled = true;
     btn.innerHTML = "...";
     try {
-        await fetch(`/api/eventos/eliminar/${ev._id}`, { method: 'DELETE', headers: {'Authorization': getAuthToken()} });
-        alert("Evento eliminado correctamente.");
-        fetchEventosData();
+        // Simulamos que piensa un ratito
+        if (typeof simularLatencia === 'function') await simularLatencia(800);
+        
+        // Borramos el evento del localStorage
+        const db = JSON.parse(localStorage.getItem('liminal_db'));
+        db.eventos = db.eventos.filter(e => e._id !== ev._id);
+        localStorage.setItem('liminal_db', JSON.stringify(db));
+        
+        alert("¡Evento eliminado al instante! 🗑️\n\nEn el sistema real, desaparece automáticamente de la web y del calendario de tus clientes.");
+        fetchEventosData(); // Recarga la lista visual
     } catch(e) { 
-        console.error(e); 
-        alert("Error al eliminar.");
+        alert("Error al eliminar localmente.");
         btn.disabled = false;
         btn.innerHTML = "Eliminar";
     }
@@ -848,7 +854,8 @@ function inicializarFormularioCarta() {
         }
     });
 
-    // 3. Submit (Sin Cambios)
+
+// 3. Submit CARTA (Versión Demo Local)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const tipo = sel.value;
@@ -856,10 +863,11 @@ function inicializarFormularioCarta() {
         const formGroup = document.getElementById(`fields-${tipoPlantilla}`);
         const btn = form.querySelector('.btn-primary');
         
+        // Validación de inglés
         const inputsEN = formGroup.querySelectorAll('.lang-content[data-lang-content="en"] [required]');
         for (const i of inputsEN) {
             if (!i.value.trim()) {
-                alert("Faltan campos en Inglés");
+                alert("Faltan campos obligatorios en la pestaña de Inglés.");
                 formGroup.querySelector('.lang-tab-btn[data-lang="en"]').click();
                 i.focus();
                 return;
@@ -867,55 +875,82 @@ function inicializarFormularioCarta() {
         }
 
         btn.disabled = true;
-        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Procesando...";
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Guardando...";
 
         try {
+            if (typeof simularLatencia === 'function') await simularLatencia(1500);
+
             const { producto_es, producto_en } = recolectarDatosProducto(formGroup, tipo);
             
-            let imgUrl = producto_es.imagen; 
-            // Subir solo si hay archivo Y (es destacado O quiere mostrar imagen)
+            let imgUrl = producto_es.imagen || 'bebidaSinFoto.jpg'; 
             const debeSubir = (producto_es.destacado || producto_es.mostrarImagen) && producto_es.archivoImagen;
 
+            // Comprimimos si subió foto
             if (debeSubir) {
-                const b64 = await toBase64(producto_es.archivoImagen);
-                const res = await fetch('/api/imagenes/subir', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-                    body: JSON.stringify({ data: b64 })
-                });
-                const json = await res.json();
-                if(!json.success) throw new Error(json.message);
-                imgUrl = json.url;
+                imgUrl = await comprimirImagenBase64(producto_es.archivoImagen);
             } else if (modoEdicion) {
-                const orig = adminProductos.find(p => p._id === idProductoEdicion);
-                imgUrl = orig ? orig.imagen : null;
+                const orig = adminProductos.find(p => p._id === idProductoEdicion || p.id === idProductoEdicion);
+                imgUrl = orig ? orig.imagen : 'bebidaSinFoto.jpg';
             }
 
-            producto_es.imagen = imgUrl;
-            producto_en.imagen = imgUrl;
-            delete producto_es.archivoImagen; delete producto_en.archivoImagen;
+            // Armamos el objeto para la DB local
+            const payload = {
+                _id: modoEdicion ? idProductoEdicion : "prod_" + Date.now(),
+                id: modoEdicion ? idProductoEdicion : "prod_" + Date.now(),
+                tipo: producto_es.tipo,
+                visible: true,
+                visualizacion: true,
+                destacado: producto_es.destacado,
+                mostrarImagen: producto_es.mostrarImagen,
+                precio: producto_es.precioCopa || producto_es.precioBotella || producto_es.precioCana || 0,
+                precioCopa: producto_es.precioCopa,
+                precioBotella: producto_es.precioBotella,
+                precioCana: producto_es.precioCana,
+                precioPinta: producto_es.precioPinta,
+                nombre_es: producto_es.titulo,
+                nombre_en: producto_en.titulo,
+                descripcion_es: producto_es.descripcion,
+                descripcion_en: producto_en.descripcion,
+                // --- ACÁ ESTABA EL PROBLEMA: AHORA GUARDAMOS AMBOS IDIOMAS ---
+                region: producto_es.region,
+                region_en: producto_en.region, 
+                pais: producto_es.pais,
+                pais_en: producto_en.pais,     
+                varietal: producto_es.varietal,
+                varietal_en: producto_en.varietal, 
+                crianza: producto_es.crianza,
+                crianza_en: producto_en.crianza,   
+                abv: producto_es.abv,
+                ibu: producto_es.ibu,
+                productor: producto_es.productor,
+                ano: producto_es.ano,
+                imagen: imgUrl
+            };
 
-            const url = modoEdicion ? `/api/productos/modificar/${idProductoEdicion}` : '/api/productos/crear';
-            const method = modoEdicion ? 'PUT' : 'POST';
+            const db = JSON.parse(localStorage.getItem('liminal_db'));
+            if (!db.carta) db.carta = [];
 
-            const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-                body: JSON.stringify({ producto_es, producto_en })
-            });
+            if (modoEdicion) {
+                const index = db.carta.findIndex(p => p.id === idProductoEdicion || p._id === idProductoEdicion);
+                if (index !== -1) db.carta[index] = payload;
+            } else {
+                db.carta.push(payload);
+            }
+            localStorage.setItem('liminal_db', JSON.stringify(db));
 
-            if (!res.ok) throw new Error("Error servidor");
-            alert(modoEdicion ? "Guardado con éxito" : "Creado con éxito");
+            alert(modoEdicion 
+                ? "🍷 ¡Bebida modificada con éxito!\n\nActualizar precios es así de fácil. Los mozos y los clientes ya ven el nuevo precio en sus celulares." 
+                : "🍸 ¡Nueva bebida agregada a la carta!\n\nSin depender de nadie. Ya está disponible en el menú digital para todos.");
             
             fetchProductosData();
             resetearFormularioCarta();
 
         } catch (err) {
             console.error(err);
-            alert("Error: " + err.message);
+            alert("Error local: " + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = "Guardar Producto";
+            btn.innerHTML = "<i class='bx bxs-save'></i> Guardar Producto";
         }
     });
 }
@@ -1005,13 +1040,13 @@ function resetearFormularioCarta() {
 
 async function fetchProductosData() {
     try {
-        const res = await fetch('/api/productos', { headers: { 'Authorization': getAuthToken() }});
-        if(!res.ok) throw new Error("Error API Productos");
-        const data = await res.json();
-        adminProductos = data.es.productos || [];
-        adminProductos_EN = data.en.productos || [];
+        console.log("Demo: Cargando carta local...");
+        const db = JSON.parse(localStorage.getItem('liminal_db')) || {};
+        adminProductos = db.carta || []; 
+        // Nota: En la demo simplificamos y usamos el mismo array para ES y EN
+        adminProductos_EN = db.carta || []; 
         renderizarResultadosProductos();
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error("Error leyendo carta local:", e); }
 }
 
 function inicializarPanelesBusquedaProductos() {
@@ -1026,7 +1061,8 @@ function inicializarPanelesBusquedaProductos() {
         if(btn) prellenarFormularioCarta(adminProductos.find(p => p._id === btn.dataset.id));
     });
     
-    // Smart Switch Visibilidad
+
+// Smart Switch Visibilidad (Versión Demo Local)
     container.addEventListener('change', async (e) => {
         if (e.target.matches('.visibility-switch input')) {
             const id = e.target.dataset.id;
@@ -1036,12 +1072,21 @@ function inicializarPanelesBusquedaProductos() {
             card.style.opacity = '0.5';
 
             try {
-                await fetch(`/api/productos/visibilidad/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-                    body: JSON.stringify({ visualizacion: checked })
-                });
-                adminProductos.find(p => p._id === id).visualizacion = checked;
+                if (typeof simularLatencia === 'function') await simularLatencia(500);
+
+                // MAGIA LOCAL: Actualizamos la visibilidad en el LocalStorage
+                const db = JSON.parse(localStorage.getItem('liminal_db'));
+                const prodIndex = db.carta.findIndex(p => p.id === id || p._id === id);
+                if (prodIndex !== -1) {
+                    db.carta[prodIndex].visible = checked;
+                    db.carta[prodIndex].visualizacion = checked; // Guardamos ambos por compatibilidad
+                    localStorage.setItem('liminal_db', JSON.stringify(db));
+                }
+
+                // Actualizamos la vista en vivo
+                const prodLocal = adminProductos.find(p => p._id === id);
+                if(prodLocal) prodLocal.visualizacion = checked;
+                
                 card.classList.toggle('deshabilitado', !checked);
             } catch(err) {
                 e.target.checked = !checked;
@@ -1070,24 +1115,26 @@ function renderizarResultadosProductos() {
 }
 
 function crearTarjetaResultadoProducto(p) {
-    // LÓGICA VISUAL: Si tiene imagen, úsala. Si no, usa la genérica.
-    // (Esto no guarda nada en la BD, solo afecta cómo se ve aquí)
-    let srcImagen = '../img/bebidaSinFoto.jpg'; // Default
-    
+    // SOPORTE TOTAL DE IMÁGENES (Base64 o Locales)
+    let srcImagen = '../img/bebidaSinFoto.jpg';
     if (p.imagen && p.imagen !== 'bebidaSinFoto.jpg' && p.imagen.trim() !== '') {
-        srcImagen = p.imagen.startsWith('http') ? p.imagen : `../img/${p.imagen}`;
+        srcImagen = (p.imagen.startsWith('http') || p.imagen.startsWith('data:image')) ? p.imagen : `../img/${p.imagen}`;
     }
     
     const checked = p.visualizacion !== false ? 'checked' : '';
     const disabledClass = p.visualizacion === false ? 'deshabilitado' : '';
+    
+    // CAZANDO EL UNDEFINED: Leemos el nombre correcto guardado por la demo
+    const tituloMostrar = p.nombre_es || p.titulo || 'Sin Título';
+    const precioMostrar = p.precioCopa || p.precioBotella || p.precioCana || p.precio || 0;
 
     return `
     <div class="card-resultado ${disabledClass}" style="margin-bottom:1rem;">
         <div class="card-resultado-header" style="display:flex;gap:10px;padding:10px;">
             <img src="${srcImagen}" style="width:80px;height:80px;object-fit:cover;border-radius:5px;">
             <div style="overflow:hidden;">
-                <h4 style="margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.titulo}</h4>
-                <p style="margin:5px 0 0;color:#ccc;font-size:0.9rem;">${p.tipo} | ${formatarPrecio(p.precioCopa || p.precioBotella)}</p>
+                <h4 style="margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tituloMostrar}</h4>
+                <p style="margin:5px 0 0;color:#ccc;font-size:0.9rem;">${p.tipo || 'Bebida'} | ${formatarPrecio(precioMostrar)}</p>
             </div>
         </div>
         <div class="card-resultado-footer" style="padding:10px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #444;">
@@ -1111,10 +1158,11 @@ function prellenarFormularioCarta(p) {
     
     const formGroup = document.querySelector('.form-fields-group.visible');
     
-    // Mapeo de campos
+// Mapeo corregido para coincidir con el LocalStorage
     const mapFields = {
-        '#producto-titulo': p.titulo,
-        '#producto-titulo-es': p.titulo,
+        '#producto-titulo': p.nombre_es || p.titulo,
+        '#producto-titulo-es': p.nombre_es || p.titulo,
+        '#producto-titulo-en': p.nombre_en || p.titulo_en,
         '#producto-precio-copa': p.precioCopa,
         '#producto-precio-botella': p.precioBotella,
         '#producto-precio-cana': p.precioCana,
@@ -1123,7 +1171,8 @@ function prellenarFormularioCarta(p) {
         '#producto-ano': p.ano,
         '#producto-abv': p.abv,
         '#producto-ibu': p.ibu,
-        '#producto-descripcion-es': p.descripcion,
+        '#producto-descripcion-es': p.descripcion_es || p.descripcion,
+        '#producto-descripcion-en': p.descripcion_en || p.descripcion_en,
         '#producto-region-es': p.region,
         '#producto-pais-es': p.pais,
         '#producto-varietal-es': p.varietal,
@@ -1157,21 +1206,26 @@ function prellenarFormularioCarta(p) {
     // Mostrar mensaje de imagen existente (común para ambos)
     if (msgImg && tieneFoto) {
         msgImg.style.display = 'block';
-        msgImg.innerHTML = `Imagen actual guardada: <a href="${urlVer}" target="_blank" style="color:#FFC107;">Ver Imagen</a>`;
+        if (p.imagen.startsWith('data:image')) {
+            // Si es Base64, mostramos una miniatura segura en vez de un link
+            msgImg.innerHTML = `Imagen actual: <br><img src="${p.imagen}" style="max-width:80px; margin-top:5px; border-radius:4px; border: 1px solid #444;">`;
+        } else {
+            msgImg.innerHTML = `Imagen actual guardada: <a href="${urlVer}" target="_blank" style="color:#FFC107;">Ver Imagen</a>`;
+        }
     } else if (msgImg) {
         msgImg.style.display = 'none';
     }
 
-    // Datos EN
-    const p_en = adminProductos_EN.find(en => en._id === p._id);
-    if(p_en) {
+// Datos EN (En la demo, p_en es el mismo objeto p porque unificamos la DB)
+    const dataEN = p; 
+    if(dataEN) {
         const mapFieldsEN = {
-            '#producto-titulo-en': p_en.titulo,
-            '#producto-descripcion-en': p_en.descripcion,
-            '#producto-region-en': p_en.region,
-            '#producto-pais-en': p_en.pais,
-            '#producto-varietal-en': p_en.varietal,
-            '#producto-crianza-en': p_en.crianza
+            '#producto-titulo-en': dataEN.nombre_en || dataEN.titulo_en || dataEN.titulo,
+            '#producto-descripcion-en': dataEN.descripcion_en || dataEN.descripcion,
+            '#producto-region-en': dataEN.region,
+            '#producto-pais-en': dataEN.pais,
+            '#producto-varietal-en': dataEN.varietal,
+            '#producto-crianza-en': dataEN.crianza
         };
         for (const [sel, val] of Object.entries(mapFieldsEN)) {
             const el = formGroup.querySelector(sel);
@@ -1225,13 +1279,28 @@ function inicializarModalImagenes() {
 }
 
 async function buscarImagenes(q) {
-    const res = await fetch(`/api/imagenes?q=${q}`, { headers: {'Authorization': getAuthToken()}});
-    const data = await res.json();
-    const html = data.imagenes.map(i => `
+    // Simulamos que busca en la nube
+    if (typeof simularLatencia === 'function') await simularLatencia(500);
+
+    // Creamos nuestra galería falsa para la demo apuntando a tu carpeta img
+    const imagenesDemo = [
+        { url: '../img/banda6.jpeg', nombreGuardar: 'banda6.jpeg', tags: ['jazz', 'saxo', 'banda6'] },
+        { url: '../img/banda7.jpg', nombreGuardar: 'banda7.jpg', tags: ['jam', 'underground', 'banda7'] },
+        { url: '../img/imgBandaGenerica.jpg', nombreGuardar: 'imgBandaGenerica.jpg', tags: ['generica', 'default'] },
+        { url: '../img/diaSinBanda.jpg', nombreGuardar: 'diaSinBanda.jpg', tags: ['bar', 'abierto'] }
+    ];
+
+    // Filtramos por lo que escriba el usuario
+    const filtradas = imagenesDemo.filter(img => 
+        q === '' || img.tags.some(tag => tag.toLowerCase().includes(q.toLowerCase()))
+    );
+
+    const html = filtradas.map(i => `
         <div style="margin:5px;cursor:pointer;display:inline-block;text-align:center;">
-            <img src="${i.url}" data-url="${i.url}" data-tags="${i.tags.join(',')}" style="width:100px;height:100px;object-fit:cover;border-radius:5px;border:2px solid #444;">
+            <img src="${i.url}" data-url="${i.nombreGuardar}" data-tags="${i.tags.join(',')}" style="width:100px;height:100px;object-fit:cover;border-radius:5px;border:2px solid #444;">
             <div style="font-size:0.7rem;color:#aaa;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${i.tags[0]}</div>
         </div>`).join('');
+        
     document.getElementById('resultados-imagenes').innerHTML = html || '<p style="text-align:center;color:#888;">Sin resultados</p>';
 }
 
@@ -1262,24 +1331,17 @@ function inicializarGestorWeb() {
     fetchContenidoGaleria();
 }
 
-// 1. Traer datos de MongoDB (CORREGIDA)
+// --- 1. Cargar la Galería desde LocalStorage ---
 async function fetchContenidoGaleria() {
     try {
-        const res = await fetch('/api/contenido/home'); 
-        const data = await res.json();
+        const db = JSON.parse(localStorage.getItem('liminal_db')) || {};
+        // Si no existe la propiedad, la creamos vacía
+        if (!db.galeria) db.galeria = { imagenes: [] };
         
-        // CORRECCIÓN: Quitamos el .datos intermedio
-        if (data.es && data.es.galeria) {
-            imagenesGaleria = data.es.galeria.imagenes || [];
-            renderizarGaleriaAdmin();
-        } else {
-            // Si no hay galería, inicializamos vacío
-            imagenesGaleria = [];
-            renderizarGaleriaAdmin();
-        }
+        imagenesGaleria = db.galeria.imagenes;
+        renderizarGaleriaAdmin();
     } catch (error) {
-        console.error("Error cargando galería:", error);
-        document.getElementById('galeria-grid').innerHTML = '<p>Error al cargar.</p>';
+        console.error("Error cargando galería local:", error);
     }
 }
 
@@ -1294,8 +1356,8 @@ function renderizarGaleriaAdmin() {
     }
 
     grid.innerHTML = imagenesGaleria.map((url, index) => {
-        // Detectar si es URL completa o local
-        const src = url.startsWith('http') ? url : `../img/${url}`;
+        // LA MAGIA: Soporte para Base64 y fotos locales preexistentes
+        const src = (url.startsWith('http') || url.startsWith('data:image')) ? url : `../img/${url}`;
         
         return `
         <div class="galeria-item" style="position: relative; border: 1px solid #444; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9;">
@@ -1309,39 +1371,25 @@ function renderizarGaleriaAdmin() {
     }).join('');
 }
 
-// 3. Subir a Cloudinary y Guardar en Mongo
 async function subirYAgregarFoto(file) {
     const btn = document.getElementById('btn-nueva-foto-galeria');
-    const txtOriginal = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Subiendo...";
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Comprimiendo...";
 
     try {
-        // A. Subir a Cloudinary
-        const base64 = await toBase64(file);
-        const resCloud = await fetch('/api/imagenes/subir', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-            body: JSON.stringify({ data: base64 })
-        });
-        const dataCloud = await resCloud.json();
-        if (!dataCloud.success) throw new Error("Falló subida a Cloudinary");
-
-        // B. Agregar al array local
-        imagenesGaleria.push(dataCloud.url);
-
-        // C. Guardar cambios en MongoDB
-        await guardarCambiosGaleria();
+        // Comprimimos y convertimos a Base64 localmente
+        const base64 = await comprimirImagenBase64(file);
+        
+        imagenesGaleria.push(base64);
+        await guardarCambiosGaleria(); // Guarda en localStorage
         
         renderizarGaleriaAdmin();
-        alert("Imagen subida y guardada correctamente.");
-
+        alert("¡Imagen subida! Ahora aparecerá en el carrusel de la Landing.");
     } catch (error) {
-        console.error(error);
-        alert("Error: " + error.message);
+        alert("Error al procesar la imagen.");
     } finally {
         btn.disabled = false;
-        btn.innerHTML = txtOriginal;
+        btn.innerHTML = "<i class='bx bxs-cloud-upload'></i> Subir Nueva Foto";
     }
 }
 
@@ -1362,38 +1410,10 @@ window.eliminarFotoGaleria = async function(index) {
 
 // 5. Guardar en MongoDB (Actualiza ES y EN) (CORREGIDA)
 async function guardarCambiosGaleria() {
-    // Paso 1: Traer el objeto HOME actual de la BD
-    const res = await fetch('/api/contenido/home');
-    const data = await res.json();
-    
-    if (!data.es || !data.en) throw new Error("No se pudo leer la configuración actual.");
-
-    // Paso 2: Actualizar SOLO el array de imágenes
-    // CORRECCIÓN: Quitamos el .datos intermedio aquí también
-    const homeES = data.es;
-    const homeEN = data.en;
-
-    // Aseguramos que exista la estructura
-    if (!homeES.galeria) homeES.galeria = {};
-    if (!homeEN.galeria) homeEN.galeria = {};
-
-    homeES.galeria.imagenes = imagenesGaleria;
-    homeEN.galeria.imagenes = imagenesGaleria; 
-
-    // Paso 3: Enviar actualizaciones
-    const p1 = fetch('/api/contenido/modificar', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-        body: JSON.stringify({ uid: 'home_es', datos: homeES })
-    });
-
-    const p2 = fetch('/api/contenido/modificar', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-        body: JSON.stringify({ uid: 'home_en', datos: homeEN })
-    });
-
-    await Promise.all([p1, p2]);
+    const db = JSON.parse(localStorage.getItem('liminal_db'));
+    if (!db.galeria) db.galeria = {};
+    db.galeria.imagenes = imagenesGaleria;
+    localStorage.setItem('liminal_db', JSON.stringify(db));
 }
 
 // =========================================================
@@ -1445,97 +1465,62 @@ function inicializarGestorTextos() {
 async function cargarTextosParaEdicion(uid) {
     const form = document.getElementById('form-textos-web');
     if(!form) return;
+    const lang = uid === 'home_es' ? 'es' : 'en';
 
-    form.style.opacity = '0.5';
-    
     try {
-        const res = await fetch('/api/contenido/home');
-        const data = await res.json();
-        
-        // CORRECCIÓN: Quitamos .datos porque la API ya devuelve el objeto plano
-        textosCache.es = data.es || {};
-        textosCache.en = data.en || {};
+        const db = JSON.parse(localStorage.getItem('liminal_db'));
+        const t = (db.textosWeb && db.textosWeb[lang]) ? db.textosWeb[lang] : {};
 
-        const datos = (uid === 'home_es') ? textosCache.es : textosCache.en;
-        
-        // Si el objeto está vacío, es que no cargó bien o no existe
-        if (Object.keys(datos).length === 0) {
-            console.warn("Datos vacíos para", uid);
-        }
-
-        // Mapear campos
-        document.getElementById('txt-hero-titulo').value = datos.hero?.titulo || '';
-        document.getElementById('txt-hero-subtitulo').value = datos.hero?.subtitulo || '';
-        
-        document.getElementById('txt-historia-titulo').value = datos.historia?.titulo || '';
-        document.getElementById('txt-historia-texto').value = datos.historia?.texto || '';
-        
-        document.getElementById('txt-parallax-titulo').value = datos.parallax?.titulo || '';
-        document.getElementById('txt-news-titulo').value = datos.newsletter?.titulo || '';
-        document.getElementById('txt-news-subtitulo').value = datos.newsletter?.subtitulo || '';
-        
-        document.getElementById('txt-ubicacion-titulo').value = datos.ubicacion?.titulo || '';
-        document.getElementById('txt-ubicacion-subtitulo').value = datos.ubicacion?.subtitulo || '';
-        document.getElementById('txt-ubicacion-texto').value = datos.ubicacion?.texto || '';
+        document.getElementById('txt-hero-titulo').value = t.hero_titulo || '';
+        document.getElementById('txt-hero-subtitulo').value = t.hero_subtitulo || '';
+        document.getElementById('txt-historia-titulo').value = t.historia_titulo || '';
+        document.getElementById('txt-historia-texto').value = t.historia_texto || '';
+        document.getElementById('txt-parallax-titulo').value = t.parallax_titulo || '';
+        document.getElementById('txt-news-titulo').value = t.news_titulo || '';
+        document.getElementById('txt-news-subtitulo').value = t.news_subtitulo || '';
+        document.getElementById('txt-ubicacion-titulo').value = t.ubicacion_titulo || '';
+        document.getElementById('txt-ubicacion-subtitulo').value = t.ubicacion_subtitulo || '';
+        document.getElementById('txt-ubicacion-texto').value = t.ubicacion_texto || '';
 
     } catch (error) {
-        console.error("Error cargando textos:", error);
-    } finally {
-        form.style.opacity = '1';
+        console.error("Error al cargar textos:", error);
     }
 }
 
 // Guardar (CORREGIDA)
 async function guardarTextosEditados() {
     const uid = document.getElementById('texto-idioma-select').value;
+    const lang = uid === 'home_es' ? 'es' : 'en';
     const btn = document.querySelector('#form-textos-web .btn-primary');
     
     btn.disabled = true;
     btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Guardando...";
 
     try {
-        // Recuperamos la base
-        const datosBase = (uid === 'home_es') ? textosCache.es : textosCache.en;
-        
-        // Aseguramos que existan los sub-objetos para no dar error de null
-        if(!datosBase.hero) datosBase.hero = {};
-        if(!datosBase.historia) datosBase.historia = {};
-        if(!datosBase.parallax) datosBase.parallax = {};
-        if(!datosBase.newsletter) datosBase.newsletter = {};
-        if(!datosBase.ubicacion) datosBase.ubicacion = {};
+        if (typeof simularLatencia === 'function') await simularLatencia(800);
 
-        // Actualizamos valores
-        datosBase.hero.titulo = document.getElementById('txt-hero-titulo').value;
-        datosBase.hero.subtitulo = document.getElementById('txt-hero-subtitulo').value;
-        
-        datosBase.historia.titulo = document.getElementById('txt-historia-titulo').value;
-        datosBase.historia.texto = document.getElementById('txt-historia-texto').value;
-        
-        datosBase.parallax.titulo = document.getElementById('txt-parallax-titulo').value;
-        datosBase.newsletter.titulo = document.getElementById('txt-news-titulo').value;
-        datosBase.newsletter.subtitulo = document.getElementById('txt-news-subtitulo').value;
-        
-        datosBase.ubicacion.titulo = document.getElementById('txt-ubicacion-titulo').value;
-        datosBase.ubicacion.subtitulo = document.getElementById('txt-ubicacion-subtitulo').value;
-        datosBase.ubicacion.texto = document.getElementById('txt-ubicacion-texto').value;
+        const db = JSON.parse(localStorage.getItem('liminal_db'));
+        if (!db.textosWeb) db.textosWeb = { es: {}, en: {} };
+        if (!db.textosWeb.es) db.textosWeb.es = {};
+        if (!db.textosWeb.en) db.textosWeb.en = {};
 
-        // Enviar al servidor
-        const res = await fetch('/api/contenido/modificar', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-            body: JSON.stringify({ uid: uid, datos: datosBase })
-        });
+        // Guardamos todo en el idioma seleccionado
+        db.textosWeb[lang].hero_titulo = document.getElementById('txt-hero-titulo').value;
+        db.textosWeb[lang].hero_subtitulo = document.getElementById('txt-hero-subtitulo').value;
+        db.textosWeb[lang].historia_titulo = document.getElementById('txt-historia-titulo').value;
+        db.textosWeb[lang].historia_texto = document.getElementById('txt-historia-texto').value;
+        db.textosWeb[lang].parallax_titulo = document.getElementById('txt-parallax-titulo').value;
+        db.textosWeb[lang].news_titulo = document.getElementById('txt-news-titulo').value;
+        db.textosWeb[lang].news_subtitulo = document.getElementById('txt-news-subtitulo').value;
+        db.textosWeb[lang].ubicacion_titulo = document.getElementById('txt-ubicacion-titulo').value;
+        db.textosWeb[lang].ubicacion_subtitulo = document.getElementById('txt-ubicacion-subtitulo').value;
+        db.textosWeb[lang].ubicacion_texto = document.getElementById('txt-ubicacion-texto').value;
 
-        if (!res.ok) throw new Error("Error al guardar");
+        localStorage.setItem('liminal_db', JSON.stringify(db));
         
-        alert("¡Textos actualizados correctamente! (Backup creado)");
-        
-        // Recargamos para verificar
-        cargarTextosParaEdicion(uid);
-
+        alert("📝 ¡Textos actualizados al instante!\n\nRevisá tu Landing Page para ver los cambios aplicados en el idioma correspondiente.");
     } catch (error) {
-        console.error(error);
-        alert("Error al guardar cambios.");
+        alert("Error al guardar cambios localmente.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = "<i class='bx bxs-save'></i> Guardar Cambios de Texto";
@@ -1633,8 +1618,14 @@ async function generarPreview(tipo) {
         const imgInput = document.getElementById('evento-imagen-upload');
         
         let imgSrc = '../img/imgBandaGenerica.jpg';
-        if (imgInput.files && imgInput.files[0]) imgSrc = await toBase64(imgInput.files[0]);
-        else if (imgUrlHidden) imgSrc = imgUrlHidden;
+        if (imgInput.files && imgInput.files[0]) {
+            imgSrc = await toBase64(imgInput.files[0]);
+        } else if (imgUrlHidden) {
+            // LA MAGIA: Si es un archivo local (preexistente), le agregamos la ruta
+            imgSrc = (imgUrlHidden.startsWith('http') || imgUrlHidden.startsWith('data:image')) 
+                        ? imgUrlHidden 
+                        : `../img/${imgUrlHidden}`;
+        }
 
         container.innerHTML = `
             <div style="background: #222; border-radius: 10px; overflow: hidden; max-width: 400px; margin: 0 auto; border: 1px solid #444; position: relative; min-height: 450px; display: flex; flex-direction: column;">
@@ -1657,17 +1648,19 @@ async function generarPreview(tipo) {
         const formGroup = document.querySelector('.form-fields-group.visible');
         if(!formGroup) return;
 
-        const titulo = formGroup.querySelector('#producto-titulo')?.value || 'Nombre Producto';
+        const titulo = formGroup.querySelector('#producto-titulo-es')?.value || formGroup.querySelector('#producto-titulo')?.value || 'Nombre Producto';
         const desc = formGroup.querySelector('#producto-descripcion-es')?.value || 'Descripción...';
-        const precio = formGroup.querySelector('#producto-precio-copa')?.value || formGroup.querySelector('#producto-precio-botella')?.value || '10';
+        // Cazamos el primer precio que encontremos lleno
+        const precio = formGroup.querySelector('#producto-precio-copa')?.value || formGroup.querySelector('#producto-precio-botella')?.value || formGroup.querySelector('#producto-precio-cana')?.value || '0.00';
         const imgInput = formGroup.querySelector('#producto-imagen-upload');
         
         let imgSrc = 'img/bebidaSinFoto.jpg';
         if (imgInput && imgInput.files && imgInput.files[0]) {
             imgSrc = await toBase64(imgInput.files[0]);
         } else if (modoEdicion && idProductoEdicion) {
-             const orig = adminProductos.find(p => p._id === idProductoEdicion);
-             if (orig && orig.imagen) imgSrc = orig.imagen.startsWith('http') ? orig.imagen : `../img/${orig.imagen}`;
+            const orig = adminProductos.find(p => p._id === idProductoEdicion || p.id === idProductoEdicion);
+             // LA MAGIA: Le enseñamos a leer data:image
+            if (orig && orig.imagen) imgSrc = (orig.imagen.startsWith('http') || orig.imagen.startsWith('data:image')) ? orig.imagen : `../img/${orig.imagen}`;
         }
 
         // ESTILO CARD / BANNER (Coctel o Vino)
@@ -1819,7 +1812,10 @@ function renderizarCalendarioSelector(fecha) {
                 celda.addEventListener('click', () => abrirModalMultiEvento(fechaIso, eventosDelDia));
             } else if (eventosDelDia.length === 1) {
                 const ev = eventosDelDia[0];
-                const img = ev.imagen && ev.imagen.startsWith('http') ? ev.imagen : URL_GENERICA;
+                // LA MAGIA: Misma lógica para el selector
+                const img = (ev.imagen && (ev.imagen.startsWith('http') || ev.imagen.startsWith('data:image'))) 
+                            ? ev.imagen 
+                            : `../img/${ev.imagen || 'imgBandaGenerica.jpg'}`;
                 celda.innerHTML = `<img src="${img}" class="news-day-bg"><span class="news-day-number">${i}</span><span class="news-day-status">${ev.titulo || 'Evento'}</span>`;
                 celda.addEventListener('click', () => seleccionarEventoParaFlyer(ev.fecha, ev.titulo));
             } else {
@@ -1932,7 +1928,10 @@ function renderizarCalendarioNewsletter() {
                 titulo = eventoDB.titulo || 'Evento Privado';
                 imgUrl = URL_PRIVADO;
             } else if (eventoDB.imagen) {
-                imgUrl = eventoDB.imagen.startsWith('http') ? eventoDB.imagen : URL_GENERICA;
+                // LA MAGIA: Soporte para Base64 y fotos locales preexistentes
+                imgUrl = (eventoDB.imagen.startsWith('http') || eventoDB.imagen.startsWith('data:image')) 
+                            ? eventoDB.imagen 
+                            : `../img/${eventoDB.imagen}`;
             }
         } else {
             const modificacion = newsState.modificaciones.get(fechaIso);
@@ -1961,7 +1960,7 @@ function renderizarCalendarioNewsletter() {
             ${tieneMulti ? 
                 `<div class="news-action-btn btn-list" title="Gestionar Shows"><i class='bx bx-list-ul'></i></div>` :
                 `<div class="news-action-btn btn-star"><i class='bx bxs-star'></i></div>
-                 <div class="news-action-btn btn-edit"><i class='bx bxs-pencil'></i></div>`
+                <div class="news-action-btn btn-edit"><i class='bx bxs-pencil'></i></div>`
             }
         `;
 
@@ -2339,7 +2338,11 @@ function generarHTMLFinal(config) {
                     if (eventoDB.tipoEvento === 'Cerrado') imgUrl = URL_CERRADO;
                     else if (eventoDB.tipoEvento === 'Privado') imgUrl = URL_PRIVADO;
                     else if (eventoDB.imagen) {
-                        imgUrl = eventoDB.imagen.startsWith('http') ? eventoDB.imagen : URL_GENERICA;
+                    // LA MAGIA DE LA VISTA PREVIA: Armamos la URL absoluta en vivo para engañar al iframe
+                    const baseUrl = window.location.origin;
+                    imgUrl = (eventoDB.imagen.startsWith('http') || eventoDB.imagen.startsWith('data:image')) 
+                                ? eventoDB.imagen 
+                                : `${baseUrl}/img/${eventoDB.imagen}`;
                     }
                 }
 
@@ -2398,12 +2401,17 @@ async function mostrarPreviewNewsletter(e) {
     btn.innerHTML = "Generando...";
     
     try {
+        let customDate = null;
+        if (newsState.mode === 'custom' && document.getElementById('news-custom-link-event')?.checked) {
+            customDate = document.getElementById('news-custom-date').value;
+        }
         const configPreview = { 
             title: document.getElementById('news-title').value,
             urlFlyerCustom: newsState.mode === 'custom' && document.getElementById('news-custom-img').files[0] 
                 ? URL.createObjectURL(document.getElementById('news-custom-img').files[0]) 
                 : null,
-            includeHeader: document.getElementById('news-custom-header')?.checked ?? true
+            includeHeader: document.getElementById('news-custom-header')?.checked ?? true,
+            customLinkDate: customDate
         };
         
         for (const [key, val] of newsState.modificaciones) {
@@ -2438,26 +2446,17 @@ async function enviarNewsletterReal(e) {
     
     const btn = e.target;
     btn.disabled = true;
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Subiendo imágenes...";
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Despachando correos...";
 
     try {
-        const config = await prepararDatosParaEnvio();
-        const html = generarHTMLFinal(config);
+        // Simulamos la magia
+        if (typeof simularLatencia === 'function') await simularLatencia(2000);
 
-        const res = await fetch('/api/newsletter/enviar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
-            body: JSON.stringify({ subject: config.subject, htmlContent: html })
-        });
-        
-        const data = await res.json();
-        if(!data.success) throw new Error(data.message);
-        
-        alert("¡Enviado con éxito!");
+        // MENSAJE SEDUCTOR DE VENTA
+        alert("🚀 ¡Campaña enviada con éxito!\n\n¿Viste qué fácil? En la vida real, acá se despacharía el correo con diseño premium a todos los clientes de tu base de datos.\n\nTodo integrado, sin pagar herramientas externas ni depender de diseñadores.");
 
     } catch (err) {
-        alert("Error: " + err.message);
-        console.error(err);
+        alert("Error simulando el envío.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = "<i class='bx bxs-paper-plane'></i> Enviar Ahora";
